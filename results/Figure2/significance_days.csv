@@ -1,0 +1,7 @@
+"Treatment1","Treatment2","First_Significant_Day"
+"Control","Ceno",8
+"Control","Pilo",NA
+"Control","Co_Inoc",40
+"Ceno","Pilo",1
+"Ceno","Co_Inoc",31
+"Pilo","Co_Inoc",1
