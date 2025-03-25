@@ -127,7 +127,7 @@ basic_growth_plot
 ##### GROWTH CURVE ANALYSIS - BRM (Cumulative Distribution Family) #####
 
 
-### fit and evaluate model ###
+### FIT AND EVALUATE MODEL ###
 
 
 # set control treatment as reference
@@ -212,7 +212,7 @@ plot(bay_model_sum_no_random)
 plot(conditional_effects(bay_model_sum_no_random))
 
 
-### plot the predictions ###
+### PLOT THE PREDICTIONS ###
 
 
 # extract conditional effects data and convert to dataframe
@@ -233,7 +233,6 @@ model_plot <- ggplot(ce_df, aes(x = days_original, y = estimate__, color = Treat
   geom_ribbon(aes(ymin = lower__, ymax = upper__, fill = Treatment), alpha = 0.2, color = NA) +
   geom_line(aes(y = lower__), linetype = "solid", size = 0.5) +
   geom_line(aes(y = upper__), linetype = "solid", size = 0.5) +
-  geom_line(size = 1.2) +
   scale_color_manual(values = custom_colors, labels = treatment_labels, name = "Treatment") + # apply custom color scheme
   scale_fill_manual(values = custom_colors, labels = treatment_labels, name = "Treatment") +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 64)) +
@@ -269,12 +268,15 @@ write.csv(model_predictions, "results/Figure2/model_predictions_timeseries.csv",
 
 
 
-### investigate significance of treatment effects ###
+### INVESTIGATE SIGNIFICANCE OF TREATMENT EFFECTS ###
 
 
 # extract treatment effects
 treatment_effects <- conditional_effects(bay_model, effects = "Treatment")
 treatment_effect_data <- as.data.frame(treatment_effects$Treatment)
+treatment_effect_data$Significance <- !(treatment_effect_data$lower__rel < 0 & 
+                                          treatment_effect_data$upper__rel > 0)
+
 
 # reorder factor levels
 treatment_effect_data$Treatment <- factor(treatment_effect_data$Treatment, levels = c("Control", "Ceno", "Pilo", "Co_Inoc"))
@@ -294,27 +296,26 @@ treatment_effect_data$upper__rel <- treatment_effect_data$upper__ - treatment_ef
 # remove temporary column
 treatment_effect_data$avg_estimate <- NULL
 
+# create treatment order
+treatment_effect_data$Treatment <- factor(treatment_effect_data$Treatment, 
+                                          levels = treatment_order)
+
 # create plot for treatment effects on stage development (mean and 95% credible interval)
 overall_treatment_plot <- ggplot(treatment_effect_data, aes(x = Treatment, y = estimate__rel, color = Treatment)) +
-  geom_rect(aes(xmin = -Inf, xmax = Inf, # add colored background regions for each confidence interval
-                ymin = lower__rel, ymax = upper__rel, 
-                fill = Treatment), alpha = 0.2) +
-  geom_hline(aes(yintercept = estimate__rel, color = Treatment), size = 1) + # add mean line
-  geom_errorbar(aes(ymin = lower__rel, ymax = upper__rel), width = 0.3, size = 1) + # add error bars
-  geom_point(size = 5) +   # add points
-  scale_color_manual(values = custom_colors, labels = treatment_labels, name = "Treatment") + # apply custom color scheme
-  scale_fill_manual(values = custom_colors, labels = treatment_labels, name = "Treatment") + # apply custom color scheme
-  scale_x_discrete(labels = treatment_labels) + # format x-axis
+  geom_point(aes(shape = Significance), size = 3) +
+  geom_linerange(aes(color = Treatment, ymin = lower__rel, ymax = upper__rel), size = 1.2) +
+  scale_color_manual(values = custom_colors, labels = treatment_labels, name = "Treatment") +
+  scale_x_discrete(labels = treatment_labels) +
   labs(title = "C    Treatment Effect on Stages Reached",
-       subtitle = "        Shaded areas show 95% credible intervals;\n        Overlap indicates non-significant treatment difference",
-       y = "Relative Effect (Estimate)",
+       subtitle = "        Significance: Higehest posterior density interval excludes 1",
+       y = "Relative Response",
        x = "Treatment") +
   theme_pubr() +
   theme(
     axis.text.x = element_text(angle = 25, hjust = 1, size = 10),
     axis.text.y = element_text(size = 10),
     axis.title = element_text(size = 12),
-    legend.position = "none",
+    legend.position = "right",
     plot.title = element_text(face = "bold", size = 14),
     plot.subtitle = element_text(size = 12, face = "italic"),
     panel.grid.major.y = element_line(color = "gray90"),
@@ -337,7 +338,7 @@ write.csv(overall_effects, "results/Figure2/overall_treatment_effects.csv", row.
 
 
 
-### identify number of days after which treatments become significantly different ###
+### IDENTIFY DAYS OF SIGNIFICANT DIFFERENCE ###
 
 
 # extract unique treatments from original data
@@ -577,7 +578,7 @@ pairwise_plot_final <- ggplot(
   scale_fill_manual(values = c("gray60", "gray10")) +
   theme_minimal() +
   labs(title = "D    Pairwise Treatment Timeseries Analysis",
-       subtitle = "        Shaded areas show 95% credible intervals; only significant pairs are shown",
+       subtitle = "        Shaded areas show 95% credible intervals;\n        only significant pairs are shown (95% credible interval of difference excludes zero)",
        x = "N Days",
        y = "Expected Stage (Treatment 1 - Treatment 2)"
   ) +
@@ -606,7 +607,7 @@ write.csv(significance_days, "results/Figure2/significance_days.csv", row.names 
 ###### CHECK FOR DIFFERENCES IN STAGE DURATIONS FOR EACH STAGE BETWEEN TREATMENTS #####
 
 
-### calculate stage durations ###
+### CALCULATE STAGE DURATIONS ###
 
 
 # write function for stage duration calculation
@@ -666,7 +667,7 @@ stage_durations <- stage_durations %>%
 
 
 
-### do statistical comparison between treatments for durations of each stage ###
+### COMPARISONS BETWEEN TREATMENTS FOR EACH STAGE ###
 
 
 # subset stage durations for specific stages
@@ -713,7 +714,7 @@ write.csv(stage_duration_results, "results/Figure2/stage_duration_wilcoxon.csv",
 
 
 
-### plot results ###
+### PLOT RESULTS ###
 
 
 # set treatment order
@@ -774,3 +775,5 @@ combined_plot
 # save combined plot
 ggsave("results/Figure2/Figure2.pdf", plot = combined_plot, width = 12.5, height = 20)
 dev.off()
+
+
