@@ -314,9 +314,6 @@ write.csv(
 # extract treatment effects
 treatment_effects <- conditional_effects(bay_model, effects = "Treatment")
 treatment_effect_data <- as.data.frame(treatment_effects$Treatment)
-treatment_effect_data$Significant <- !(treatment_effect_data$lower__rel < 0 &
-  treatment_effect_data$upper__rel > 0)
-
 
 # reorder factor levels
 treatment_effect_data$Treatment <- factor(
@@ -355,6 +352,10 @@ treatment_effect_data$Treatment <- factor(
   treatment_effect_data$Treatment,
   levels = treatment_order
 )
+
+# get significance
+treatment_effect_data$Significant <- (treatment_effect_data$lower__rel > 0 |
+  treatment_effect_data$upper__rel < 0)
 
 # create plot for treatment effects on stage development (mean and 95% credible interval)
 overall_treatment_plot <- ggplot(
@@ -646,6 +647,16 @@ for (pair in treatment_pairs_final) {
   }
 }
 
+# save pairwise timeseries credible intervals
+diff_over_time <- diff_over_time %>%
+  select(Treatment1, Treatment2, Day, Lower_CI, Upper_CI, Significant) %>%
+  arrange(Treatment1, Treatment2, Day)
+write.csv(
+  diff_over_time,
+  "results/Figure2/pairwise_treatment_differences_over_time.csv",
+  row.names = FALSE
+)
+
 # create final pairwise differences plot
 pairwise_plot_final <- ggplot(
   diff_over_time_final,
@@ -715,7 +726,7 @@ pairwise_plot_final <- ggplot(
 # show final plot
 pairwise_plot_final
 
-# save results
+# save significant day results
 write.csv(
   significance_days,
   "results/Figure2/significance_days.csv",
