@@ -15,10 +15,9 @@ library(emmeans)
 library(ggbeeswarm)
 library(patchwork)
 
-# check and save session info
-sessionInfo() %>%
-  capture.output(file = "results/Figure1/Figure1_session_info.txt")
-
+# check and save session info (only run in new R session)
+# sessionInfo() %>%
+#   capture.output(file = "results/Figure1/Figure1_session_info.txt")
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
