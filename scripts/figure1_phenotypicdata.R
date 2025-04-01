@@ -3,7 +3,6 @@
 ##### BASICS #####
 
 # load packages
-library(readxl)
 library(tidyverse)
 library(viridis)
 library(magick)
@@ -11,13 +10,13 @@ library(grid)
 library(ggpubr)
 library(psych)
 library(rstatix)
+library(MASS)
 library(emmeans)
 library(ggbeeswarm)
 library(patchwork)
 
 # check and save session info (only run in new R session)
-# sessionInfo() %>%
-#   capture.output(file = "results/Figure1/Figure1_session_info.txt")
+#sessionInfo() %>% capture.output(file = "results/Figure1/Figure1_session_info.txt")
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
@@ -26,11 +25,6 @@ pheno_data <- read_csv("data/phenotypic_data/pheno_data.csv")
 
 # exclude contaminated and dead plants
 pheno_data_final <- subset(pheno_data, Exclude == "no")
-
-# create numeric dataframe excluding rows columns only "0" entries and character columns
-pheno_data_num <- pheno_data_final %>%
-  dplyr::select(-c("N_Other", "N_No")) %>%
-  dplyr::select(where(is.numeric))
 
 
 ##### DEFINE BASIC PLOTTING PARAMETERS #####
@@ -113,8 +107,8 @@ dw_plant_plot <- ggplot(
     annotation = c("< 0.001", "0.004")
   ) +
   labs(
-    title = "B    Total Biomass Produced",
-    subtitle = "        Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
+    title = "b    Total Biomass Produced",
+    subtitle = "       Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
     x = "Treatment",
     y = "Dry Weight (g)"
   ) +
@@ -143,12 +137,12 @@ stat_test_above <- pheno_data_final %>%
   wilcox_test(DW_Shoot ~ Treatment) %>%
   adjust_pvalue(method = "bonferroni") %>%
   add_significance()
-stat_test_above$Part <- "above ground"
+stat_test_above$Part <- "Shoot"
 stat_test_below <- pheno_data_final %>%
   wilcox_test(DW_Roots_Total ~ Treatment) %>%
   adjust_pvalue(method = "bonferroni") %>%
   add_significance()
-stat_test_below$Part <- "below ground"
+stat_test_below$Part <- "Root"
 
 # combine results
 wilcoxon_results_above_below <- rbind(stat_test_above, stat_test_below)
@@ -213,11 +207,11 @@ dw_above_below_plot <- ggplot(
     y_position = c(0.98, 1.05, 0.86, 0.93),
     xmin = c(0.906, 0.906, 1.906, 1.906),
     xmax = c(1.094, 1.282, 2.0935, 2.282),
-    annotation = c("< 0.001", "0.012", "< 0.001", "< 0.001")
+    annotation = c("< 0.001", "< 0.001", "< 0.001", "0.012")
   ) +
   labs(
-    title = "C    Shoot vs. Root Biomass Produced",
-    subtitle = "        Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
+    title = "c    Shoot vs. Root Biomass Produced",
+    subtitle = "       Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
     x = "Plant Part",
     y = "Dry Weight (g)"
   ) +
@@ -254,32 +248,63 @@ subset_DW_Shoot <- subset(pheno_data_long_allocation, Part == "DW_Shoot")
 subset_DW_Roots <- subset(pheno_data_long_allocation, Part == "DW_Roots_Total")
 
 # calculate GLMs (sum)
-model_DW_Shoot <- glm(
-  Part_DW ~ Treatment + DW_Plant,
+model_DW_Shoot_no <- glm(
+  (Part_DW) ~ Treatment + DW_Plant,
   data = subset_DW_Shoot,
   family = gaussian()
 )
-model_DW_Roots <- glm(
-  Part_DW ~ Treatment + DW_Plant,
+model_DW_Roots_no <- glm(
+  (Part_DW) ~ Treatment + DW_Plant,
+  data = subset_DW_Roots,
+  family = gaussian()
+)
+bc_shoot <- boxcox(Part_DW ~ Treatment + DW_Plant, data = subset_DW_Shoot)
+lambda_shoot <- bc_shoot$x[which.max(bc_shoot$y)]
+model_DW_Shoot_bc <- glm(
+  ((Part_DW^lambda_shoot - 1) / lambda_shoot) ~ Treatment + DW_Plant,
+  data = subset_DW_Shoot,
+  family = gaussian()
+)
+bc_roots <- boxcox(Part_DW ~ Treatment + DW_Plant, data = subset_DW_Roots)
+lambda_roots <- bc_roots$x[which.max(bc_roots$y)]
+model_DW_Roots_bc <- glm(
+  ((Part_DW^lambda_roots - 1) / lambda_roots) ~ Treatment + DW_Plant,
+  data = subset_DW_Roots,
+  family = gaussian()
+)
+model_DW_Shoot_log <- glm(
+  log(Part_DW) ~ Treatment + DW_Plant,
+  data = subset_DW_Shoot,
+  family = gaussian()
+)
+model_DW_Roots_log <- glm(
+  log(Part_DW) ~ Treatment + DW_Plant,
   data = subset_DW_Roots,
   family = gaussian()
 )
 
+# check AIC and BIC
+AIC(model_DW_Shoot_bc, model_DW_Shoot_log, model_DW_Shoot_no)
+AIC(model_DW_Roots_bc, model_DW_Roots_log, model_DW_Roots_no)
+BIC(model_DW_Shoot_bc, model_DW_Shoot_log, model_DW_Shoot_no)
+BIC(model_DW_Roots_bc, model_DW_Roots_log, model_DW_Roots_no)
+# use no transformation
+
 # check distributions of residuals
-hist(residuals(model_DW_Shoot))
-qqnorm(residuals(model_DW_Shoot))
-qqline(residuals(model_DW_Shoot))
-hist(residuals(model_DW_Roots))
-qqnorm(residuals(model_DW_Roots))
-qqline(residuals(model_DW_Roots))
+hist(residuals(model_DW_Shoot_no))
+qqnorm(residuals(model_DW_Shoot_no))
+qqline(residuals(model_DW_Shoot_no))
+hist(residuals(model_DW_Roots_no))
+qqnorm(residuals(model_DW_Roots_no))
+qqline(residuals(model_DW_Roots_no))
 
 # get summary statistics
-summary(model_DW_Shoot)
-summary(model_DW_Roots)
+summary(model_DW_Shoot_no)
+summary(model_DW_Roots_no)
 
 # calculate and plot estimated means
 emm_DW_Shoot <- emmeans(
-  model_DW_Shoot,
+  model_DW_Shoot_no,
   ~ Treatment | DW_Plant,
   type = "response",
   adjust = "sidak"
@@ -288,7 +313,7 @@ plot(emm_DW_Shoot, comparisons = TRUE)
 emm_DW_Shoot_results <- as.data.frame(emm_DW_Shoot)
 emm_DW_Shoot_results$Part <- "Shoot"
 emm_DW_Roots <- emmeans(
-  model_DW_Roots,
+  model_DW_Roots_no,
   ~ Treatment | DW_Plant,
   type = "response",
   adjust = "sidak"
@@ -345,7 +370,7 @@ treatment_labels_allocation <- c("Shoot", "Root")
 emm_plot <- ggplot() +
   geom_point(
     data = emm_results,
-    aes(x = Part, y = emmean, color = Treatment),
+    aes(x = Part, y = response, color = Treatment),
     position = position_dodge(width = 0.75),
     size = 3
   ) +
@@ -353,7 +378,7 @@ emm_plot <- ggplot() +
     data = emm_results,
     aes(
       x = Part,
-      y = emmean,
+      y = response,
       color = Treatment,
       ymin = lower.CL,
       ymax = upper.CL
@@ -375,8 +400,8 @@ emm_plot <- ggplot() +
   ) +
   scale_x_discrete(labels = c("Shoot", "Root")) +
   labs(
-    title = "D    Treatment Effects on Plant Biomass Allocation",
-    subtitle = "        Plant dry weight is used as a model co-factor; only significant p-values are shown (pairwise t-statistic test with Sidak correction)",
+    title = "d    Treatment Effects on Plant Biomass Allocation",
+    subtitle = "       Plant dry weight is used as a model co-factor; only significant p-values are shown (pairwise t-statistic test with Sidak correction)",
     x = "Plant Part",
     y = "Dry Weight Estimated Marginal Mean (g)",
     color = "Treatment"

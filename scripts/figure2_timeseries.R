@@ -3,7 +3,6 @@
 ##### BASICS #####
 
 # load packages
-library(readxl)
 library(tidyverse)
 library(viridis)
 library(ggpubr)
@@ -18,8 +17,7 @@ library(grid)
 library(patchwork)
 
 # check and save session info (only run in new R session)
-# sessionInfo() %>%
-#  capture.output(file = "results/Figure2/Figure2_session_info.txt")
+#sessionInfo() %>% capture.output(file = "results/Figure2/Figure2_session_info.txt")
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
@@ -41,7 +39,7 @@ time_data <- time_data %>%
     initial_index = first(stage_index),
     Stages_Reached = ifelse(Days == 0, 0, stage_index - initial_index)
   ) %>%
-  select(names(time_data), Stages_Reached)
+  dplyr::select(-c(stage_index, initial_index))
 
 # create a column where the total number of stages reached is added for each ID
 time_data <- time_data %>%
@@ -52,7 +50,7 @@ time_data <- time_data %>%
 # exclude contaminated plants
 time_data_final <- subset(time_data, Contaminated == "no")
 
-# scale time variable, remove T0 (cumulative distribution family requires positive integers), define plant ID & Treatment as factor
+# scale time variable, remove T0 where 0 stages are reached (cumulative distribution family requires positive integers), define plant ID & Treatment as factor
 time_data_scaled <- time_data_final
 time_data_scaled$days_scaled <- scale(time_data_final$Days)
 time_data_scaled$ID <- factor(time_data_scaled$ID)
@@ -116,7 +114,7 @@ basic_growth_plot <- ggplot(
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "A    In-Vitro Assessed Growth Stage Development",
+    title = "a    In-Vitro Assessed Growth Stage Development",
     subtitle = "        Shaded areas show standard errors",
     y = "N Stages Reached",
     x = "N Weeks",
@@ -271,7 +269,7 @@ model_plot <- ggplot(
   scale_x_continuous(expand = c(0, 0), limits = c(0, 56)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "B    Growth Model (Bayesian Regression)",
+    title = "b    Growth Model (Bayesian Regression)",
     subtitle = "        Shaded areas show 95% credible intervals",
     y = "N Stages Reached",
     x = "N Days"
@@ -375,8 +373,8 @@ overall_treatment_plot <- ggplot(
   scale_x_discrete(labels = treatment_labels) +
   geom_hline(yintercept = 0, size = 0.2, col = "black") +
   labs(
-    title = "C    Treatment Effect on Stages Reached",
-    subtitle = "        Significance: Highest posterior density interval excludes 1",
+    title = "c    Treatment Effect on Stages Reached",
+    subtitle = "        Significance: 95% credible intervals in comparison to grand mean exclude zero",
     y = "Relative Response",
     x = "Treatment"
   ) +
@@ -649,7 +647,14 @@ for (pair in treatment_pairs_final) {
 
 # save pairwise timeseries credible intervals
 diff_over_time <- diff_over_time %>%
-  select(Treatment1, Treatment2, Day, Lower_CI, Upper_CI, Significant) %>%
+  dplyr::select(
+    Treatment1,
+    Treatment2,
+    Day,
+    Lower_CI,
+    Upper_CI,
+    Significant
+  ) %>%
   arrange(Treatment1, Treatment2, Day)
 write.csv(
   diff_over_time,
@@ -704,8 +709,8 @@ pairwise_plot_final <- ggplot(
   scale_fill_manual(values = c("gray60", "gray10")) +
   theme_minimal() +
   labs(
-    title = "D    Pairwise Treatment Timeseries Analysis",
-    subtitle = "        Shaded areas show 95% credible intervals;\n        only significant pairs are shown (95% credible interval of difference excludes 0)",
+    title = "d    Pairwise Treatment Timeseries Analysis",
+    subtitle = "        Shaded areas show 95% credible intervals; only significant pairs are shown (95% credible intervals of differences excludes 0)",
     x = "N Days",
     y = "Expected Stage (Treatment 1 - Treatment 2)"
   ) +
@@ -890,7 +895,7 @@ stage_plot <- ggplot(
     annotation = c("0.024", "0.001", "0.048", "0.012")
   ) +
   labs(
-    title = "E    Treatment-Specifc Stage Durations",
+    title = "e    Treatment-Specifc Stage Durations",
     subtitle = "        Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
     x = "Stage",
     y = "N Days in Stage"
