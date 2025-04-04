@@ -438,7 +438,6 @@ combined_plot_pheno <- dw_plant_plot /
   emm_plot +
   plot_layout(widths = c(5), heights = (10)) +
   plot_annotation(
-    title = "Phenotypic Variation Analysis",
     theme = theme(
       plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
     )

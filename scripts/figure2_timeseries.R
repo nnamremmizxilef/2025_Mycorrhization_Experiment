@@ -114,7 +114,7 @@ basic_growth_plot <- ggplot(
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "a    In-Vitro Assessed Growth Stage Development",
+    title = "b    In-Vitro Assessed Growth Stage Development",
     subtitle = "        Shaded areas show standard errors",
     y = "N Stages Reached",
     x = "N Weeks",
@@ -269,7 +269,7 @@ model_plot <- ggplot(
   scale_x_continuous(expand = c(0, 0), limits = c(0, 56)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "b    Growth Model (Bayesian Regression)",
+    title = "c    Growth Model (Bayesian Regression)",
     subtitle = "        Shaded areas show 95% credible intervals",
     y = "N Stages Reached",
     x = "N Days"
@@ -373,7 +373,7 @@ overall_treatment_plot <- ggplot(
   scale_x_discrete(labels = treatment_labels) +
   geom_hline(yintercept = 0, size = 0.2, col = "black") +
   labs(
-    title = "c    Treatment Effect on Stages Reached",
+    title = "d    Treatment Effect on Stages Reached",
     subtitle = "        Significance: 95% credible intervals in comparison to grand mean exclude zero",
     y = "Relative Response",
     x = "Treatment"
@@ -709,7 +709,7 @@ pairwise_plot_final <- ggplot(
   scale_fill_manual(values = c("gray60", "gray10")) +
   theme_minimal() +
   labs(
-    title = "d    Pairwise Treatment Timeseries Analysis",
+    title = "e    Pairwise Treatment Timeseries Analysis",
     subtitle = "        Shaded areas show 95% credible intervals; only significant pairs are shown (95% credible intervals of differences excludes 0)",
     x = "N Days",
     y = "Expected Stage (Treatment 1 - Treatment 2)"
@@ -895,7 +895,7 @@ stage_plot <- ggplot(
     annotation = c("0.024", "0.001", "0.048", "0.012")
   ) +
   labs(
-    title = "e    Treatment-Specifc Stage Durations",
+    title = "f    Treatment-Specifc Stage Durations",
     subtitle = "        Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
     x = "Stage",
     y = "N Days in Stage"
@@ -919,13 +919,12 @@ stage_plot
 ##### FINAL VISUALIZATION #####
 
 # create combined plot
-combined_plot <- basic_growth_plot /
+combined_plot <- (plot_spacer() | basic_growth_plot) /
   (model_plot | overall_treatment_plot) /
   pairwise_plot_final /
   stage_plot +
   plot_layout() +
   plot_annotation(
-    title = "Growth Stage Timeseries Analysis",
     theme = theme(
       plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
     )
