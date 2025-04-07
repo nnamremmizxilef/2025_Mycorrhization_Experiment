@@ -114,8 +114,7 @@ basic_growth_plot <- ggplot(
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "b    In-Vitro Assessed Growth Stage Development",
-    subtitle = "        Shaded areas show standard errors",
+    title = "b",
     y = "N Stages Reached",
     x = "N Weeks",
     color = "Treatment",
@@ -269,8 +268,7 @@ model_plot <- ggplot(
   scale_x_continuous(expand = c(0, 0), limits = c(0, 56)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
   labs(
-    title = "c    Growth Model (Bayesian Regression)",
-    subtitle = "        Shaded areas show 95% credible intervals",
+    title = "c",
     y = "N Stages Reached",
     x = "N Days"
   ) +
@@ -368,13 +366,12 @@ overall_treatment_plot <- ggplot(
   scale_color_manual(
     values = custom_colors,
     labels = treatment_labels,
-    name = "Treatment"
+    guide = "none" # Remove the color legend
   ) +
   scale_x_discrete(labels = treatment_labels) +
   geom_hline(yintercept = 0, size = 0.2, col = "black") +
   labs(
-    title = "d    Treatment Effect on Stages Reached",
-    subtitle = "        Significance: 95% credible intervals in comparison to grand mean exclude zero",
+    title = "d",
     y = "Relative Response",
     x = "Treatment"
   ) +
@@ -709,8 +706,7 @@ pairwise_plot_final <- ggplot(
   scale_fill_manual(values = c("gray60", "gray10")) +
   theme_minimal() +
   labs(
-    title = "e    Pairwise Treatment Timeseries Analysis",
-    subtitle = "        Shaded areas show 95% credible intervals; only significant pairs are shown (95% credible intervals of differences excludes 0)",
+    title = "e",
     x = "N Days",
     y = "Expected Stage (Treatment 1 - Treatment 2)"
   ) +

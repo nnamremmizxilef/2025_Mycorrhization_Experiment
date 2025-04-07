@@ -107,8 +107,7 @@ dw_plant_plot <- ggplot(
     annotation = c("< 0.001", "0.004")
   ) +
   labs(
-    title = "b    Total Biomass Produced",
-    subtitle = "       Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
+    title = "b",
     x = "Treatment",
     y = "Dry Weight (g)"
   ) +
@@ -210,8 +209,7 @@ dw_above_below_plot <- ggplot(
     annotation = c("< 0.001", "< 0.001", "< 0.001", "0.012")
   ) +
   labs(
-    title = "c    Shoot vs. Root Biomass Produced",
-    subtitle = "       Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
+    title = "c",
     x = "Plant Part",
     y = "Dry Weight (g)"
   ) +
@@ -307,7 +305,7 @@ emm_DW_Shoot <- emmeans(
   model_DW_Shoot_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "sidak"
+  adjust = "bonferroni"
 )
 plot(emm_DW_Shoot, comparisons = TRUE)
 emm_DW_Shoot_results <- as.data.frame(emm_DW_Shoot)
@@ -316,7 +314,7 @@ emm_DW_Roots <- emmeans(
   model_DW_Roots_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "sidak"
+  adjust = "bonferroni"
 )
 plot(emm_DW_Roots, comparisons = TRUE)
 emm_DW_Roots_results <- as.data.frame(emm_DW_Roots)
@@ -400,8 +398,7 @@ emm_plot <- ggplot() +
   ) +
   scale_x_discrete(labels = c("Shoot", "Root")) +
   labs(
-    title = "d    Treatment Effects on Plant Biomass Allocation",
-    subtitle = "       Plant dry weight is used as a model co-factor; only significant p-values are shown (pairwise t-statistic test with Sidak correction)",
+    title = "d",
     x = "Plant Part",
     y = "Dry Weight Estimated Marginal Mean (g)",
     color = "Treatment"
