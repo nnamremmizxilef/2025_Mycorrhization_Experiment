@@ -305,7 +305,7 @@ emm_DW_Shoot <- emmeans(
   model_DW_Shoot_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "bonferroni"
+  adjust = "sidak"
 )
 plot(emm_DW_Shoot, comparisons = TRUE)
 emm_DW_Shoot_results <- as.data.frame(emm_DW_Shoot)
@@ -314,7 +314,7 @@ emm_DW_Roots <- emmeans(
   model_DW_Roots_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "bonferroni"
+  adjust = "sidak"
 )
 plot(emm_DW_Roots, comparisons = TRUE)
 emm_DW_Roots_results <- as.data.frame(emm_DW_Roots)
@@ -332,9 +332,17 @@ write.csv(
 )
 
 # calculate pairwise comparison statistics with sidak correction
-pairs_Shoot <- as.data.frame(pairs(emm_DW_Shoot, adjust = "sidak"))
+pairs_Shoot <- as.data.frame(pairs(
+  emm_DW_Shoot,
+  adjust = "sidak",
+  type = "response"
+))
 pairs_Shoot$Part <- "Shoot"
-pairs_Roots <- as.data.frame(pairs(emm_DW_Roots, adjust = "sidak"))
+pairs_Roots <- as.data.frame(pairs(
+  emm_DW_Roots,
+  adjust = "sidak",
+  type = "response"
+))
 pairs_Roots$Part <- "Roots"
 
 # combine results

@@ -85,7 +85,7 @@ stage_plot <- ggplot(stage_counts_long) +
   scale_y_continuous(limits = c(0, 24), breaks = seq(0, 24, 1)) +
   scale_x_discrete(labels = treatment_labels) +
   labs(
-    title = "a    Plant Randomization by Growth Stage",
+    title = "a",
     x = "Treatment",
     y = "N Plants"
   ) +
@@ -117,7 +117,7 @@ stem_length_plot <- ggplot(
   scale_x_discrete(labels = treatment_labels) + # Add this line for custom x-axis labels
   theme(axis.title.x = element_blank()) +
   labs(
-    title = "b    Randomization by Initial Stem Length",
+    title = "b",
     x = "Treatment",
     y = "Stem Length (cm)"
   ) +
@@ -154,9 +154,9 @@ date_plot <- ggplot(
   scale_x_discrete(labels = treatment_labels) + # Add this line for custom x-axis labels
   theme(axis.title.x = element_blank()) +
   labs(
-    title = "c    Randomization by Rooting Date (Divergence from Mean Rooting Date)",
+    title = "c",
     x = "Treatment",
-    y = "N Days Divergence"
+    y = "N Days Divergence from Mean Rooting Date"
   ) +
   theme(
     legend.position = "none",
@@ -179,7 +179,7 @@ combined_plot_randomization <- stage_plot /
   date_plot +
   plot_layout(widths = c(5), heights = (10)) +
   plot_annotation(
-    title = "Plant Randomization Plot",
+    title = "",
     theme = theme(
       plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
     )
@@ -218,8 +218,8 @@ corrplot(
   tl.cex = 1,
   cl.cex = 1,
   diag = FALSE,
-  title = "Spearman Correlation Matrix",
-  mar = c(0, 0, 4, 0)
+  title = "",
+  mar = c(0, 0, 0, 0)
 )
 
 # plot only significant correlations in lower triangle
@@ -234,17 +234,6 @@ corrplot(
   p.mat = p_matrix,
   sig.level = 0.05,
   insig = "blank"
-)
-
-# add subtitle
-mtext(
-  "The upper triangle shows all Spearman correlation R values;
-      the lower triangle shows only significant correlations.",
-  side = 3, # 3 = top
-  line = -0.3, # Position below the main title
-  cex = 1, # Smaller text size than title
-  col = "black",
-  font = 3
 )
 
 # save pdf
