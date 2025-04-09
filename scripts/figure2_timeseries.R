@@ -891,7 +891,7 @@ stage_plot <- ggplot(
     annotation = c("0.012", "0.001", "0.044", "0.024", "0.012")
   ) +
   labs(
-    title = "",
+    title = "f",
     x = "Stage",
     y = "N Days in Stage"
   ) +
