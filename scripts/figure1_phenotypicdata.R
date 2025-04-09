@@ -53,10 +53,10 @@ custom_colors <- c(
 
 ### do statistical comparison between treatments for durations of each stage ###
 
-# do wilcoxon test with bonferroni p adjustment for plant dry weight
+# do wilcoxon test with Benjamini-Hochberg p adjustment for plant dry weight
 stat_test_dw_plant <- pheno_data_final %>%
   wilcox_test(DW_Plant ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 
 # save_results
@@ -101,10 +101,10 @@ dw_plant_plot <- ggplot(
   scale_x_discrete(labels = treatment_labels) + # format x-axis
   theme_classic() +
   geom_signif(
-    y_position = c(1.66, 1.8),
-    xmin = c(2, 2),
-    xmax = c(3, 4),
-    annotation = c("< 0.001", "0.004")
+    y_position = c(1.8, 1.94, 1.66),
+    xmin = c(2, 2, 1),
+    xmax = c(3, 4, 3),
+    annotation = c("< 0.001", "0.002", "0.036")
   ) +
   labs(
     title = "b",
@@ -131,15 +131,15 @@ dw_plant_plot
 
 ### do statistical comparison between treatments for durations of each stage ###
 
-# do wilcoxon test with bonferroni p adjustment for plant dry weight
+# do wilcoxon test with Benjamini-Hochberg p adjustment for plant dry weight
 stat_test_above <- pheno_data_final %>%
   wilcox_test(DW_Shoot ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_above$Part <- "Shoot"
 stat_test_below <- pheno_data_final %>%
   wilcox_test(DW_Roots_Total ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_below$Part <- "Root"
 
@@ -203,10 +203,10 @@ dw_above_below_plot <- ggplot(
   ) +
   scale_x_discrete(labels = treatment_labels_above_below) +
   geom_signif(
-    y_position = c(0.98, 1.05, 0.86, 0.93),
-    xmin = c(0.906, 0.906, 1.906, 1.906),
-    xmax = c(1.094, 1.282, 2.0935, 2.282),
-    annotation = c("< 0.001", "< 0.001", "< 0.001", "0.012")
+    y_position = c(1.05, 1.12, 0.98, 0.93, 1, 0.86),
+    xmin = c(0.906, 0.906, 0.716, 1.906, 1.906, 1.72),
+    xmax = c(1.094, 1.282, 1.094, 2.0935, 2.282, 1.906),
+    annotation = c("< 0.001", "< 0.001", "0.030", "< 0.001", "0.006", "0.048")
   ) +
   labs(
     title = "c",
@@ -305,7 +305,7 @@ emm_DW_Shoot <- emmeans(
   model_DW_Shoot_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "sidak"
+  adjust = "BH"
 )
 plot(emm_DW_Shoot, comparisons = TRUE)
 emm_DW_Shoot_results <- as.data.frame(emm_DW_Shoot)
@@ -314,7 +314,7 @@ emm_DW_Roots <- emmeans(
   model_DW_Roots_no,
   ~ Treatment | DW_Plant,
   type = "response",
-  adjust = "sidak"
+  adjust = "BH"
 )
 plot(emm_DW_Roots, comparisons = TRUE)
 emm_DW_Roots_results <- as.data.frame(emm_DW_Roots)
@@ -331,16 +331,16 @@ write.csv(
   row.names = FALSE
 )
 
-# calculate pairwise comparison statistics with sidak correction
+# calculate pairwise comparison statistics with Benjamini-Hochberg correction
 pairs_Shoot <- as.data.frame(pairs(
   emm_DW_Shoot,
-  adjust = "sidak",
+  adjust = "BH",
   type = "response"
 ))
 pairs_Shoot$Part <- "Shoot"
 pairs_Roots <- as.data.frame(pairs(
   emm_DW_Roots,
-  adjust = "sidak",
+  adjust = "BH",
   type = "response"
 ))
 pairs_Roots$Part <- "Roots"
@@ -414,11 +414,11 @@ emm_plot <- ggplot() +
   annotate("segment", x = 0.905, xend = 1.095, y = 0.95, yend = 0.95) +
   annotate("segment", x = 0.905, xend = 0.905, y = 0.922, yend = 0.95) +
   annotate("segment", x = 1.095, xend = 1.095, y = 0.922, yend = 0.95) +
-  annotate("text", x = 1.0, y = 0.98, label = "0.024") +
+  annotate("text", x = 1.0, y = 0.98, label = "0.025") +
   annotate("segment", x = 0.725, xend = 1.095, y = 1.04, yend = 1.04) +
   annotate("segment", x = 0.725, xend = 0.725, y = 1.012, yend = 1.04) +
   annotate("segment", x = 1.095, xend = 1.095, y = 1.012, yend = 1.04) +
-  annotate("text", x = 0.91, y = 1.07, label = "0.049") +
+  annotate("text", x = 0.91, y = 1.07, label = "0.025") +
   theme_pubr() +
   theme(
     axis.text.x = element_text(size = 10),

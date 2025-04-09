@@ -812,25 +812,25 @@ stage_durations_B$stage_letter <- "B"
 stage_durations_C$stage_letter <- "C"
 stage_durations_D$stage_letter <- "D"
 
-# do wilcoxon test with bonferroni p adjustment for each stage
+# do wilcoxon test with Benjamini-Hochberg p adjustment for each stage
 stat_test_A <- stage_durations_A %>%
   wilcox_test(DaysInStage ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_A$stage <- "A"
 stat_test_B <- stage_durations_B %>%
   wilcox_test(DaysInStage ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_B$stage <- "B"
 stat_test_C <- stage_durations_C %>%
   wilcox_test(DaysInStage ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_C$stage <- "C"
 stat_test_D <- stage_durations_D %>%
   wilcox_test(DaysInStage ~ Treatment) %>%
-  adjust_pvalue(method = "bonferroni") %>%
+  adjust_pvalue(method = "BH") %>%
   add_significance()
 stat_test_D$stage <- "D"
 
@@ -885,14 +885,13 @@ stage_plot <- ggplot(
   labs(y = "Days in Stage", x = "Stage") +
   theme_classic() +
   geom_signif(
-    y_position = c(64, 59, 24, 30),
-    xmin = c(0.72, 0.912, 2.907, 3.1),
-    xmax = c(1.095, 1.095, 3.1, 3.278),
-    annotation = c("0.024", "0.001", "0.048", "0.012")
+    y_position = c(59, 64, 69, 24, 30),
+    xmin = c(0.72, 0.912, 0.912, 2.907, 3.1),
+    xmax = c(1.095, 1.095, 1.27, 3.1, 3.278),
+    annotation = c("0.012", "0.001", "0.044", "0.024", "0.012")
   ) +
   labs(
-    title = "f    Treatment-Specifc Stage Durations",
-    subtitle = "        Only significant p-values are shown (Wilcoxon test with Bonferroni correction) ",
+    title = "",
     x = "Stage",
     y = "N Days in Stage"
   ) +
