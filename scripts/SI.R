@@ -9,6 +9,7 @@ library(psych)
 library(corrplot)
 library(ggpubr)
 library(patchwork)
+library(forcats)
 
 # check and save session info (only run in new R session)
 #sessionInfo() %>% capture.output(file = "results/SI/SI_session_info.txt")
@@ -26,6 +27,11 @@ pheno_data_final <- subset(pheno_data, Exclude == "no")
 pheno_data_num <- pheno_data_final %>%
   dplyr::select(-c("N_Other", "N_No", "Max_Stages_Reached")) %>%
   dplyr::select(where(is.numeric))
+
+# load estimated marginal means data for resource allocation
+resource_allocation_data <- read_csv(
+  "results/Figure1/emm_resource_allocation.csv"
+)
 
 
 ##### DEFINE BASIC PLOTTING PARAMETERS #####
@@ -198,7 +204,7 @@ ggsave(
 dev.off()
 
 
-##### CREATE CORRELATION MATRIX HEATMAP #####
+##### CORRELATION MATRIX HEATMAP #####
 
 # calculate correlation matrix and p-values
 corr_results <- corr.test(na.omit(pheno_data_num), method = "spearman")
@@ -250,3 +256,71 @@ p_df <- p_df %>%
 # save results
 write_csv(corr_df, "results/SI/Spearman_R.csv")
 write_csv(p_df, "results/SI/Spearman_p.csv")
+
+
+##### RESOURCE ALLOCATION PROPORTIONS #####
+
+# calculate proportions
+resource_allocation_data <- resource_allocation_data %>%
+  group_by(Treatment) %>%
+  mutate(proportion = response / sum(response)) %>%
+  ungroup()
+
+# convert proportions to percent
+resource_allocation_data <- resource_allocation_data %>%
+  mutate(percentage = proportion * 100)
+
+
+# create reversed factor for plotting shoot over root
+resource_allocation_data <- resource_allocation_data %>%
+  mutate(Part = fct_rev(Part))
+
+# create stacked barplot
+resource_proportions_plot <- ggplot(
+  resource_allocation_data,
+  aes(
+    x = factor(Treatment, levels = treatment_order),
+    y = percentage,
+    fill = Part
+  )
+) +
+  geom_bar(stat = "identity", position = "stack", width = 0.7) +
+  geom_hline(
+    yintercept = 50,
+    linetype = "dashed",
+    color = "black",
+    size = 0.5
+  ) +
+  scale_y_continuous(
+    name = "Proportion (%)",
+    limits = c(0, 100),
+    breaks = seq(0, 100, by = 25)
+  ) +
+  scale_fill_viridis_d(option = "A") +
+  scale_x_discrete(labels = treatment_labels) +
+  labs(title = "", x = "Treatment") +
+  theme_pubr() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 10),
+    axis.title = element_text(size = 12),
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 12, face = "italic"),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor.y = element_line(color = "gray95")
+  )
+
+
+# show plot
+resource_proportions_plot
+
+# save plot
+
+ggsave(
+  "results/SI/Resource_Allocation_Proportions.pdf",
+  plot = resource_proportions_plot,
+  width = 12.5,
+  height = 5
+)
+dev.off()
