@@ -8,9 +8,9 @@
 
 ## Authors & Affiliations:
 
-**Felix Zimmermann** (*Corresponding Author*; Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; felix.zimmermann@wsl.ch; ORCID: 0009-0002-0762-2454)
+**Felix Zimmermann** (*Corresponding Author*; Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; felix.zimmermann@wsl.ch; [ORCID: 0009-0002-0762-2454](https://orcid.org/0009-0002-0762-2454))
 
-**Marie-Lara Bouffaud** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; marie-lara.bouffaud@ufz.de; ORCID: 0000-0001-6112-2982)
+**Marie-Lara Bouffaud** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; marie-lara.bouffaud@ufz.de; [ORCID: 0000-0001-6112-2982](https://orcid.org/0000-0001-6112-2982))
 
 **Sylvie Herrmann** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; sylvie.herrmann@ufz.de; ORCID: NA)
 
@@ -18,15 +18,15 @@
 
 **René Graf** (Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; rene.graf@wsl.ch; ORCID: NA)
 
-**Mika Tarkka** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; mika.tarkka@ufz.de; ORCID: 0000-0003-4630-351X)
+**Mika Tarkka** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; mika.tarkka@ufz.de; [ORCID: 0000-0003-4630-351X](https://orcid.org/0000-0003-4630-351X))
 
-**Lars Opgenoorth** (Laboratory of Plant Ecology and Geobotany, Institute of Biology, Philipps University Marburg, Marburg, Germany; opgenoorth@uni-marburg.de; ORCID: 0000-0003-0737-047X)
+**Lars Opgenoorth** (Laboratory of Plant Ecology and Geobotany, Institute of Biology, Philipps University Marburg, Marburg, Germany; opgenoorth@uni-marburg.de; [ORCID: 0000-0003-0737-047X](https://orcid.org/0000-0003-0737-047X))
 
-**Daniel Croll** (Laboratory of Evolutionary Genetics, Institute of Biology, University of Neuchâtel, Neuchâtel, Switzerland; daniel.croll@unine.ch; ORCID: 0000-0002-2072-380X)
+**Daniel Croll** (Laboratory of Evolutionary Genetics, Institute of Biology, University of Neuchâtel, Neuchâtel, Switzerland; daniel.croll@unine.ch; [ORCID: 0000-0002-2072-380X](https://orcid.org/0000-0002-2072-380X))
 
-**Martina Peter** (Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; martina.peter@wsl.ch; ORCID: 0000-0002-6365-6889)
+**Martina Peter** (Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; martina.peter@wsl.ch; [ORCID: 0000-0002-6365-6889](https://orcid.org/0000-0002-6365-6889))
 
-**Benjamin Dauphin** (*Corresponding Author*; Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; benjamin.dauphin@wsl.ch; ORCID: 0000-0003-0982-4252)
+**Benjamin Dauphin** (*Corresponding Author*; Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; benjamin.dauphin@wsl.ch; [ORCID: 0000-0003-0982-4252](https://orcid.org/0000-0003-0982-4252))
 
 
 ## Content:
