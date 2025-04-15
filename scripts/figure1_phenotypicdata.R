@@ -104,7 +104,8 @@ dw_plant_plot <- ggplot(
     y_position = c(1.8, 1.94, 1.66),
     xmin = c(2, 2, 1),
     xmax = c(3, 4, 3),
-    annotation = c("< 0.001", "0.002", "0.036")
+    annotation = c("< 0.001", "0.002", "0.036"),
+    textsize = 4
   ) +
   labs(
     title = "b",
@@ -114,11 +115,15 @@ dw_plant_plot <- ggplot(
   theme_pubr() +
   theme(
     legend.position = "none",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      vjust = 2,
+      hjust = -0.075
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -206,7 +211,8 @@ dw_above_below_plot <- ggplot(
     y_position = c(1.05, 1.12, 0.98, 0.93, 1, 0.86),
     xmin = c(0.906, 0.906, 0.716, 1.906, 1.906, 1.72),
     xmax = c(1.094, 1.282, 1.094, 2.0935, 2.282, 1.906),
-    annotation = c("< 0.001", "< 0.001", "0.030", "< 0.001", "0.006", "0.048")
+    annotation = c("< 0.001", "< 0.001", "0.030", "< 0.001", "0.006", "0.048"),
+    textsize = 4
   ) +
   labs(
     title = "c",
@@ -216,11 +222,17 @@ dw_above_below_plot <- ggplot(
   theme_pubr() +
   theme(
     legend.position = "right",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.075,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -414,19 +426,25 @@ emm_plot <- ggplot() +
   annotate("segment", x = 0.905, xend = 1.095, y = 0.95, yend = 0.95) +
   annotate("segment", x = 0.905, xend = 0.905, y = 0.922, yend = 0.95) +
   annotate("segment", x = 1.095, xend = 1.095, y = 0.922, yend = 0.95) +
-  annotate("text", x = 1.0, y = 0.98, label = "0.025") +
+  annotate("text", x = 1.0, y = 0.98, label = "0.025", size = 4) +
   annotate("segment", x = 0.725, xend = 1.095, y = 1.04, yend = 1.04) +
   annotate("segment", x = 0.725, xend = 0.725, y = 1.012, yend = 1.04) +
   annotate("segment", x = 1.095, xend = 1.095, y = 1.012, yend = 1.04) +
-  annotate("text", x = 0.91, y = 1.07, label = "0.025") +
+  annotate("text", x = 0.91, y = 1.07, label = "0.025", size = 4) +
   theme_pubr() +
   theme(
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     legend.position = "right",
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.075,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -441,19 +459,14 @@ emm_plot
 combined_plot_pheno <- dw_plant_plot /
   dw_above_below_plot /
   emm_plot +
-  plot_layout(widths = c(5), heights = (10)) +
-  plot_annotation(
-    theme = theme(
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
-    )
-  )
+  plot_layout(widths = c(5), heights = (10))
 
 # show plot
 combined_plot_pheno
 
 # save combined plot (has to be combined with experimental setup plot)
 ggsave(
-  "results/Figure1/Figure1_R.pdf",
+  "results/Figure1/Figure1.pdf",
   plot = combined_plot_pheno,
   width = 12.5,
   height = 15

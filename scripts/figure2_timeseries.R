@@ -122,12 +122,19 @@ basic_growth_plot <- ggplot(
   ) +
   theme_pubr() +
   theme(
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     legend.position = "right",
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.075,
+      vjust = 2
+    ),
+    plot.subtitle = element_text(size = 14, face = "italic"),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -274,12 +281,16 @@ model_plot <- ggplot(
   ) +
   theme_pubr() +
   theme(
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     legend.position = "none",
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.0525,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -377,12 +388,18 @@ overall_treatment_plot <- ggplot(
   ) +
   theme_pubr() +
   theme(
-    axis.text.x = element_text(angle = 25, hjust = 1, size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
+    axis.text.x = element_text(angle = 25, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     legend.position = "right",
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.07,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -712,16 +729,22 @@ pairwise_plot_final <- ggplot(
   ) +
   theme_pubr() +
   theme(
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     legend.position = "right",
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.0675,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95"),
     strip.background = element_rect(fill = "white"),
-    strip.text = element_markdown(size = 10)
+    strip.text = element_markdown(size = 12)
   )
 
 # show final plot
@@ -888,7 +911,8 @@ stage_plot <- ggplot(
     y_position = c(59, 64, 69, 24, 30),
     xmin = c(0.72, 0.912, 0.912, 2.907, 3.1),
     xmax = c(1.095, 1.095, 1.27, 3.1, 3.278),
-    annotation = c("0.012", "0.001", "0.044", "0.024", "0.012")
+    annotation = c("0.012", "0.001", "0.044", "0.024", "0.012"),
+    textsize = 4.4
   ) +
   labs(
     title = "f",
@@ -898,11 +922,17 @@ stage_plot <- ggplot(
   theme_pubr() +
   theme(
     legend.position = "right",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.075,
+      vjust = 2
+    ),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
@@ -918,12 +948,7 @@ combined_plot <- (plot_spacer() | basic_growth_plot) /
   (model_plot | overall_treatment_plot) /
   pairwise_plot_final /
   stage_plot +
-  plot_layout() +
-  plot_annotation(
-    theme = theme(
-      plot.title = element_text(size = 16, face = "bold", hjust = 0.5)
-    )
-  )
+  plot_layout()
 
 # show plot
 combined_plot
