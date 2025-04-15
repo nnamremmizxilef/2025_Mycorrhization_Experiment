@@ -5,3 +5,4 @@
 .Ruserdata
 .RDataTmp
 .DS_Store
+.gitignore
