@@ -7,6 +7,7 @@ library(tidyverse)
 library(viridis)
 library(ggpubr)
 library(brms)
+library(posterior)
 library(bayesnec)
 library(bayestestR)
 library(tidybayes)
@@ -16,7 +17,7 @@ library(ggsignif)
 library(grid)
 library(patchwork)
 
-# check and save session info (only run in new R session)
+# check and save session info (only run in fresh R session)
 #sessionInfo() %>% capture.output(file = "results/Figure2/Figure2_session_info.txt")
 
 ##### DATA LOADING, CLEANING & SCALING #####
@@ -47,15 +48,15 @@ time_data <- time_data %>%
   mutate(Max_Stages_Reached = max(Stages_Reached)) %>%
   ungroup()
 
-# exclude contaminated plants
+# exclude contaminated plants, add +1 to Stages_Reached because plants start with 1 reached stage
 time_data_final <- subset(time_data, Contaminated == "no")
+time_data_final$Stages_Reached <- time_data_final$Stages_Reached + 1
 
-# scale time variable, remove T0 where 0 stages are reached (cumulative distribution family requires positive integers), define plant ID & Treatment as factor
+# scale time variable, define plant ID & Treatment as factor
 time_data_scaled <- time_data_final
 time_data_scaled$days_scaled <- scale(time_data_final$Days)
 time_data_scaled$ID <- factor(time_data_scaled$ID)
 time_data_scaled$Treatment <- factor(time_data_scaled$Treatment)
-time_data_scaled <- subset(time_data_scaled, Stages_Reached > 0)
 
 
 ##### DEFINE BASIC PLOTTING PARAMETERS #####
@@ -73,10 +74,10 @@ treatment_order <- c("Control", "Pilo", "Ceno", "Co_Inoc")
 
 # define custom colors
 custom_colors <- c(
-  "Control" = "#55C667FF", # Light green
-  "Ceno" = "#440154FF", # Purple
-  "Pilo" = "#FDE725FF", # Yellow
-  "Co_Inoc" = "#39568CFF" # Light blue
+  "Control" = "#4B8C6F",
+  "Ceno" = "#8C5E8C",
+  "Pilo" = "#D6C9A0",
+  "Co_Inoc" = "#5E96A6"
 )
 
 
@@ -85,7 +86,7 @@ custom_colors <- c(
 # remove week 10 (only 1 set reached week 10)
 time_data_basic_plot <- subset(time_data_final, Week < 9)
 
-# create basic plot for growth stage development (mean and 95% confidence interval)
+# create basic plot for growth stage development (mean and standard error)
 basic_growth_plot <- ggplot(
   time_data_basic_plot,
   aes(x = Week, y = Stages_Reached, color = Treatment)
@@ -94,7 +95,7 @@ basic_growth_plot <- ggplot(
   stat_summary(
     fun.data = mean_se,
     geom = "ribbon",
-    alpha = 0.2,
+    alpha = 0.5,
     aes(fill = Treatment)
   ) +
   scale_color_manual(
@@ -108,11 +109,10 @@ basic_growth_plot <- ggplot(
     breaks = treatment_order
   ) +
   scale_x_continuous(
-    expand = c(0, 0),
-    limits = c(0, 8),
-    breaks = (c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9))
+    breaks = (c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)),
+    expand = (c(0, 0))
   ) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
+  scale_y_continuous() +
   labs(
     title = "b",
     y = "N Stages Reached",
@@ -145,7 +145,7 @@ basic_growth_plot
 
 ##### GROWTH CURVE ANALYSIS - BRM (Cumulative Distribution Family) #####
 
-### FIT AND EVALUATE MODELS ###
+### FIT MODELS WITH DIFFERENT LEVELS OF COMPLEXITY ###
 
 # set control treatment as reference
 time_data_scaled$Treatment <- relevel(
@@ -153,89 +153,257 @@ time_data_scaled$Treatment <- relevel(
   ref = "Control"
 )
 
-# fit growth curve model with cumulative distribution family using bayesian regression (Treatment * days_scaled + random)
+# fit growth curve model with cumulative distribution family using bayesian regression (Treatment * days_scaled + random intercept factor ID)
 bay_model <- brm(
-  Stages_Reached ~ Treatment * days_scaled + (1 | ID), # plant ID as random factor to account for non-independent measurements (1 wo random effect, 1 sum, 1 treatment only, )
+  Stages_Reached ~ Treatment * days_scaled + (1 | ID),
+  ## treatment effect with linear time trend and random intercepts
+  # treatment and days_scaled interaction as fixed effects
+  # random intercept-factor ID to account for non-independence of repeated measurements
   family = cumulative(), # cumulative distribution family to account for cumulative nature of growth-stage succession
   data = time_data_scaled, # use scaled numeric explanatory variable in model
   chains = 4, # use 4 independent fitting procedures
-  iter = 10000, # use 10000 iterations
-  warmup = 5000, # use 50% of iterations as warm-up
-  seed = 2025 # use seed
+  iter = 6000, # use 6000 iterations
+  warmup = 3000, # use 50% of iterations as warm-up
+  seed = 2025, # use seed
 )
 
-# fit growth curve model with cumulative distribution family using bayesian regression (Treatment * days_scaled)
-bay_model_no_random <- brm(
-  Stages_Reached ~ Treatment * days_scaled,
-  family = cumulative(), # cumulative distribution family to account for cumulative nature of growth-stage succession
-  data = time_data_scaled, # use scaled numeric explanatory variable in model
-  chains = 4, # use 4 independent fitting procedures
-  iter = 10000, # use 10000 iterations
-  warmup = 5000, # use 50% of iterations as warm-up
-  seed = 2025 # use seed
-)
-
-# fit growth curve model with cumulative distribution family using bayesian regression (Treatment + days_scaled + random)
-bay_model_sum <- brm(
-  Stages_Reached ~ Treatment + days_scaled + (1 | ID), # plant ID as random factor to account for non-independent measurements
-  family = cumulative(), # cumulative distribution family to account for cumulative nature of growth-stage succession
-  data = time_data_scaled, # use scaled numeric explanatory variable in model
-  chains = 4, # use 4 independent fitting procedures
-  iter = 10000, # use 10000 iterations
-  warmup = 5000, # use 50% of iterations as warm-up
-  seed = 2025 # use seed
-)
-
-# fit growth curve model with cumulative distribution family using bayesian regression (Treatment + days_scaled)
-bay_model_sum_no_random <- brm(
-  Stages_Reached ~ Treatment + days_scaled,
-  family = cumulative(), # cumulative distribution family to account for cumulative nature of growth-stage succession
-  data = time_data_scaled, # use scaled numeric explanatory variable in model
-  chains = 4, # use 4 independent fitting procedures
-  iter = 10000, # use 10000 iterations
-  warmup = 5000, # use 50% of iterations as warm-up
-  seed = 2025 # use seed
-)
-
-# compare all models
-loo(bay_model, bay_model_no_random, bay_model_sum, bay_model_sum_no_random) # lower looic is desired, higher elpd is desired
-waic(bay_model, bay_model_no_random, bay_model_sum, bay_model_sum_no_random) # lower waic is desired, higher elpd is desired
-
-# check model summary statistics and plot posterior distribution (Treatment * days_scaled + random)
+# check model summary statistics and plot posterior distribution
 summary(bay_model)
-fixef(bay_model) # fixed effects
+rhat(bay_model)
+fixef(bay_model)
 ranef(bay_model)
 bayes_R2(bay_model)
 plot(bay_model)
 plot(conditional_effects(bay_model))
+loo(bay_model)
 
-# check model summary statistics and plot posterior distribution (Treatment * days_scaled + random)
-summary(bay_model_no_random, waic = TRUE)
-fixef(bay_model_no_random) # fixed effects
-bayes_R2(bay_model_no_random)
-plot(bay_model_no_random)
-plot(conditional_effects(bay_model_no_random))
+# fincrease complexity by incorporating random slope (Treatment * days_scaled + random intercept-slope factor ID)
+bay_model_slope <- brm(
+  Stages_Reached ~ Treatment * days_scaled + (1 + days_scaled | ID),
+  ## treatment effect with linear time trend, random intercepts and random slopes
+  # treatment and days_scaled interaction as fixed effects
+  # random intercept-factor ID to account for non-independence of repeated measurements
+  # random slope-factor ID to account for heterogeneity in growth rates between plants
+  family = cumulative(), # cumulative distribution family to account for cumulative nature of growth-stage succession
+  data = time_data_scaled, # use scaled numeric explanatory variable in model
+  chains = 4, # use 4 independent fitting procedures
+  iter = 6000, # use 6000 iterations
+  warmup = 3000, # use 50% of iterations as warm-up
+  seed = 2025, # use seed
+)
 
-# check model summary statistics and plot posterior distribution (Treatment + days_scaled + random)
-summary(bay_model_sum)
-fixef(bay_model_sum) # fixed effects
-ranef(bay_model_sum)
-bayes_R2(bay_model_sum)
-plot(bay_model_sum)
-plot(conditional_effects(bay_model_sum))
+# check model summary statistics and plot posterior distribution
+summary(bay_model_slope)
+rhat(bay_model_slope)
+fixef(bay_model_slope)
+ranef(bay_model_slope)
+bayes_R2(bay_model_slope)
+plot(bay_model_slope)
+plot(conditional_effects(bay_model_slope))
+loo(bay_model_slope)
 
-# check model summary statistics and plot posterior distribution (Treatment + days_scaled)
-summary(bay_model_sum_no_random)
-fixef(bay_model_sum_no_random) # fixed effects
-bayes_R2(bay_model_sum_no_random)
-plot(bay_model_sum_no_random)
-plot(conditional_effects(bay_model_sum_no_random))
+## increase complexity by incorporating auto-regressive term (Treatment * days_scaled + auto-regressive term + random intercep factor ID)
+bay_model_ar <- brm(
+  Stages_Reached ~
+    Treatment * days_scaled + ar(time = days_scaled, gr = ID) + (1 | ID),
+  ## adding autocorrelation structure
+  # treatment and days_scaled interaction as fixed effects
+  # auto-regressive term by tree ID to account for temporal autocorrelation within plants
+  # random intercept-factor ID to account for non-independence of repeated measurements
+  family = cumulative(),
+  data = time_data_scaled,
+  chains = 4,
+  iter = 6000,
+  warmup = 3000,
+  seed = 2025
+)
+
+# check model summary statistics and plot posterior distribution
+summary(bay_model_ar)
+rhat(bay_model_ar)
+fixef(bay_model_ar)
+ranef(bay_model_ar)
+bayes_R2(bay_model_ar)
+plot(bay_model_ar)
+plot(conditional_effects(bay_model_ar))
+loo(bay_model_ar)
+# autoregressive term causes overfitting
+
+# increase complexity by adding a random slope (Treatment * days_scaled + autoregressive term + random intercept-slope factor ID)
+bay_model_ar_slope <- brm(
+  Stages_Reached ~
+    Treatment *
+      days_scaled +
+      ar(time = days_scaled, gr = ID) +
+      (1 + days_scaled | ID),
+  ## allowing individual plants to have different growth rates
+  # treatment and days_scaled interaction as fixed effects
+  # autoregressive term by tree ID to account for temporal autocorrelation within plants
+  # random intercept-factor ID to account for non-independence of repeated measurements
+  # random slope-factor ID to account for heterogeneity in growth rates between plants
+  family = cumulative(),
+  data = time_data_scaled,
+  chains = 4,
+  iter = 6000,
+  warmup = 3000,
+  seed = 2025
+)
+
+# check model summary statistics and plot posterior distribution
+summary(bay_model_ar_slope)
+rhat(bay_model_ar_slope)
+fixef(bay_model_ar_slope)
+ranef(bay_model_ar_slope)
+bayes_R2(bay_model_ar_slope)
+plot(bay_model_ar_slope)
+plot(conditional_effects(bay_model_ar_slope))
+loo(bay_model_ar_slope)
+# auto-regressive term causes overfitting
+
+# change auto-regressive term causing overfitting to spline function (Treatment + spline term + random intercept factor ID)
+bay_model_s <- brm(
+  Stages_Reached ~ Treatment + s(days_scaled, by = Treatment) + (1 | ID),
+  ## modeling non-linear growth curves by treatment
+  # treatment as fixed effect (no days_scaled interaction because treatment specific splines already capture different growth rates over time)
+  # spline/smoothing term days_scaled to allow for different non-linear growth patterns between treatments
+  # random intercept-factor ID to account for non-independence of repeated measurements
+  family = cumulative(),
+  data = time_data_scaled,
+  chains = 4,
+  iter = 6000,
+  warmup = 3000,
+  seed = 2025
+)
+
+# check model summary statistics and plot posterior distribution
+summary(bay_model_s)
+rhat(bay_model_s)
+fixef(bay_model_s)
+ranef(bay_model_s)
+bayes_R2(bay_model_s)
+plot(bay_model_s)
+plot(conditional_effects(bay_model_s))
+loo(bay_model_s)
+
+# increase complexity by adding a random slope (Treatment + spline term + random intercept-slope factor ID)
+bay_model_s_slope <- brm(
+  Stages_Reached ~
+    Treatment + s(days_scaled, by = Treatment) + (1 + days_scaled | ID),
+  ## modeling non-linear growth curves by treatment
+  # treatment as fixed effect (no days_scaled interaction because treatment specific splines already capture different growth rates over time)
+  # spline/smoothing term days_scaled to allow for different non-linear growth patterns between treatments
+  # random intercept-factor ID to account for non-independence of repeated measurements
+  # random slope-factor ID to account for heterogeneity in growth rates between plants
+  family = cumulative(),
+  data = time_data_scaled,
+  chains = 4,
+  iter = 6000,
+  warmup = 3000,
+  seed = 2025
+)
+
+# check model summary statistics and plot posterior distribution
+summary(bay_model_s_slope)
+rhat(bay_model_s_slope)
+fixef(bay_model_s_slope)
+ranef(bay_model_s_slope)
+bayes_R2(bay_model_s_slope)
+plot(bay_model_s_slope)
+plot(conditional_effects(bay_model_s_slope))
+loo(bay_model_s_slope)
 
 
-### plot predictions ###
+### COMPARE MODEL RHAT AND ESS VALUES ###
+
+# extract Rhat values for each model
+rhat_model <- rhat(bay_model)
+rhat_model_slope <- rhat(bay_model_slope)
+rhat_model_ar <- rhat(bay_model_ar)
+rhat_model_ar_slope <- rhat(bay_model_ar_slope)
+rhat_model_s <- rhat(bay_model_s)
+rhat_model_s_slope <- rhat(bay_model_s_slope)
+
+# calculate maximum deviation from 1 for each model
+max_dev_base <- max(abs(rhat_model - 1), na.rm = TRUE)
+max_dev_base_slope <- max(abs(rhat_model_slope - 1), na.rm = TRUE)
+max_dev_ar <- max(abs(rhat_model_ar - 1), na.rm = TRUE)
+max_dev_ar_slope <- max(abs(rhat_model_ar_slope - 1), na.rm = TRUE)
+max_dev_s <- max(abs(rhat_model_s - 1), na.rm = TRUE)
+max_dev_s_slope <- max(abs(rhat_model_s_slope - 1), na.rm = TRUE)
+
+# Create summary dataframe
+rhat_summary <- data.frame(
+  Model = c("Base", "Base_Slope", "AR", "AR_Slope", "S", "S_Slope"),
+  Max_Deviation = c(
+    max_dev_base,
+    max_dev_base_slope,
+    max_dev_ar,
+    max_dev_ar_slope,
+    max_dev_s,
+    max_dev_s_slope
+  ),
+  Parameters = c(
+    length(rhat_model),
+    length(rhat_model_slope),
+    length(rhat_model_ar),
+    length(rhat_model_ar_slope),
+    length(rhat_model_s),
+    length(rhat_model_s_slope)
+  )
+)
+
+# Sort by maximum deviation
+rhat_summary <- rhat_summary[order(rhat_summary$Max_Deviation), ]
+
+# Print results
+print(rhat_summary)
+
+# extract ESS values for each model
+ess_model <- ess_bulk(bay_model)
+ess_model_slope <- ess_bulk(bay_model_slope)
+ess_model_ar <- ess_bulk(bay_model_ar)
+ess_model_ar_slope <- ess_bulk(bay_model_ar_slope)
+ess_model_s <- ess_bulk(bay_model_s)
+ess_model_s_slope <- ess_bulk(bay_model_s_slope)
+
+# create dataframe of ESS values
+ess_df <- data.frame(
+  Parameter = names(ess_model),
+  Model_Base = ess_model,
+  Model_Base_Slope = ess_model_slope,
+  Model_AR = ess_model_ar,
+  Model_AR_Slope = ess_model_ar_slope,
+  Model_S = ess_model_s,
+  Model_S_Slope = ess_model_s_slope,
+)
+
+# find minimum ESS for each model
+ess_summary <- data.frame(
+  Model = c("Base", "Base_Slope", "AR", "AR_Slope", "S", "S_Slope"),
+  Min_ESS = c(
+    min(ess_model),
+    min(ess_model_slope),
+    min(ess_model_ar),
+    min(ess_model_ar_slope),
+    min(ess_model_s),
+    min(ess_model_s_slope)
+  )
+)
+
+# sort by minimum ESS
+ess_summary <- ess_summary[order(ess_summary$Min_ESS), ]
+
+# print results
+print(ess_summary)
+
+
+### PLOT PREDICTIONS ###
 
 # extract conditional effects data and convert to dataframe
-ce_data <- conditional_effects(bay_model, effects = "days_scaled:Treatment")
+ce_data <- conditional_effects(
+  bay_model_s_slope,
+  effects = "days_scaled:Treatment"
+)
 ce_df <- as.data.frame(ce_data$`days_scaled:Treatment`)
 
 # calculate scaling parameters for scaled days and scale back to original
@@ -257,7 +425,7 @@ model_plot <- ggplot(
   geom_line(size = 1) +
   geom_ribbon(
     aes(ymin = lower__, ymax = upper__, fill = Treatment),
-    alpha = 0.2,
+    alpha = 0.5,
     color = NA
   ) +
   geom_line(aes(y = lower__), linetype = "solid", size = 0.5) +
@@ -273,7 +441,7 @@ model_plot <- ggplot(
     name = "Treatment"
   ) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 56)) +
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 7.25)) +
+  scale_y_continuous() +
   labs(
     title = "c",
     y = "N Stages Reached",
@@ -298,28 +466,60 @@ model_plot <- ggplot(
 # show plot
 model_plot
 
-# save results data
-model_predictions <- subset(
-  ce_df,
-  select = -c(Stages_Reached, ID, cond__, effect1__, effect2__, days_scaled)
+
+### GET PREDICTIONS AT LAST DAY OF EXPERIMENT (56 DAYS) ###
+
+# scale day 56
+day_56_scaled <- (56 - days_mean) / days_sd
+
+# create prediction data frame
+newdata_56 <- data.frame(
+  days_scaled = day_56_scaled,
+  Treatment = c("Control", "Ceno", "Pilo", "Co_Inoc")
 )
-model_predictions <- model_predictions %>% rename(estimate = estimate__)
-model_predictions <- model_predictions %>% rename(upper = upper__)
-model_predictions <- model_predictions %>% rename(lower = lower__)
-model_predictions <- model_predictions %>% rename(se = se__)
-model_predictions <- model_predictions %>% rename(days = days_original)
-model_predictions <- model_predictions %>% rename(treatment = Treatment)
-write.csv(
-  model_predictions,
-  "results/Figure2/model_predictions_timeseries.csv",
-  row.names = FALSE
+
+# get predictions
+pred_day56 <- fitted(
+  bay_model_s_slope,
+  newdata = newdata_56,
+  re_formula = NA, # Population-level estimates
+  summary = FALSE # Get full posterior
 )
+
+# calculate expected stage for each posterior sample
+n_categories <- dim(pred_day56)[3]
+stage_indices <- 1:n_categories
+expected_stages <- matrix(0, nrow = dim(pred_day56)[1], ncol = nrow(newdata_56))
+
+for (i in 1:dim(pred_day56)[1]) {
+  for (j in 1:nrow(newdata_56)) {
+    expected_stages[i, j] <- sum(stage_indices * pred_day56[i, j, ])
+  }
+}
+
+# summarize results
+results_day56 <- data.frame(
+  Treatment = newdata_56$Treatment,
+  Expected_Stage = colMeans(expected_stages),
+  Lower_CI = apply(expected_stages, 2, quantile, probs = 0.025),
+  Upper_CI = apply(expected_stages, 2, quantile, probs = 0.975)
+)
+
+# calculate standard error based on 95% credible intervals
+results_day56$SE <- (results_day56$Upper_CI - results_day56$Lower_CI) /
+  (2 * 1.96)
+
+# print results
+print(results_day56)
 
 
 ### INVESTIGATE SIGNIFICANCE OF TREATMENT EFFECTS ###
 
 # extract treatment effects
-treatment_effects <- conditional_effects(bay_model, effects = "Treatment")
+treatment_effects <- conditional_effects(
+  bay_model_s_slope,
+  effects = "Treatment"
+)
 treatment_effect_data <- as.data.frame(treatment_effects$Treatment)
 
 # reorder factor levels
@@ -429,7 +629,7 @@ write.csv(
 ### IDENTIFY DAYS OF SIGNIFICANT DIFFERENCE ###
 
 # extract unique treatments from original data
-treatments <- unique(bay_model$data$Treatment)
+treatments <- unique(bay_model_s_slope$data$Treatment)
 
 # identify treatment pairs
 treatment_pairs <- combn(treatments, 2, simplify = FALSE)
@@ -591,6 +791,11 @@ treatment_pairs_final <- list(
     c(3, 4),
     levels = 1:4,
     labels = c("Control", "Ceno", "Co_Inoc", "Pilo")
+  ),
+  factor(
+    c(1, 4),
+    levels = 1:4,
+    labels = c("Control", "Ceno", "Co_Inoc", "Pilo")
   )
 )
 
@@ -711,6 +916,12 @@ pairwise_plot_final <- ggplot(
           x
         )
         x <- gsub("Co_Inoc vs Control", "Co-Inoculation vs.<br>Control", x)
+        x <- gsub(
+          "Co_Inoc vs Pilo",
+          "Co-Inoculation vs.<br>*Piloderma croceum*",
+          x
+        )
+        x <- gsub("Control vs Pilo", "Control vs.<br>*Piloderma croceum*", x)
         x <- gsub(
           "Co_Inoc vs Pilo",
           "Co-Inoculation vs.<br>*Piloderma croceum*",
@@ -891,7 +1102,7 @@ stage_plot <- ggplot(
   geom_boxplot(
     outlier.shape = 16,
     outlier.size = 2,
-    alpha = 0.2,
+    alpha = 0.5,
     lwd = 0.5,
     aes(color = Treatment)
   ) +

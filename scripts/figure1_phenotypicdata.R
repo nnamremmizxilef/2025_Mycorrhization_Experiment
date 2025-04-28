@@ -42,10 +42,10 @@ treatment_order <- c("Control", "Pilo", "Ceno", "Co_Inoc")
 
 # define custom colors
 custom_colors <- c(
-  "Control" = "#55C667FF", # Light green
-  "Ceno" = "#440154FF", # Purple
-  "Pilo" = "#FDE725FF", # Yellow
-  "Co_Inoc" = "#39568CFF" # Light blue
+  "Control" = "#4B8C6F",
+  "Ceno" = "#8C5E8C",
+  "Pilo" = "#D6C9A0",
+  "Co_Inoc" = "#5E96A6"
 )
 
 
@@ -84,7 +84,7 @@ dw_plant_plot <- ggplot(
   geom_boxplot(
     outlier.shape = 16,
     outlier.size = 2,
-    alpha = 0.2,
+    alpha = 0.5,
     lwd = 0.5,
     aes(color = Treatment)
   ) +
@@ -192,7 +192,7 @@ dw_above_below_plot <- ggplot(
   geom_boxplot(
     outlier.shape = 16,
     outlier.size = 2,
-    alpha = 0.2,
+    alpha = 0.5,
     lwd = 0.5,
     aes(color = Treatment)
   ) +
@@ -407,7 +407,7 @@ emm_plot <- ggplot() +
   geom_beeswarm(
     data = pheno_data_long_allocation,
     aes(x = Part, y = Part_DW, color = Treatment),
-    alpha = 0.25,
+    alpha = 0.5,
     dodge.width = 0.75,
     shape = 16
   ) +

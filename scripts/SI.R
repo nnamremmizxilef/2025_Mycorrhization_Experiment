@@ -49,16 +49,23 @@ treatment_order <- c("Control", "Pilo", "Ceno", "Co_Inoc")
 
 # define custom colors
 custom_colors <- c(
-  "Control" = "#55C667FF", # Light green
-  "Ceno" = "#440154FF", # Purple
-  "Pilo" = "#FDE725FF", # Yellow
-  "Co_Inoc" = "#39568CFF" # Light blue
+  "Control" = "#4B8C6F",
+  "Ceno" = "#8C5E8C",
+  "Pilo" = "#D6C9A0",
+  "Co_Inoc" = "#5E96A6"
 )
 
 
 ##### PLANT RANDOMIZATION PLOT #####
 
 ### RANDOMIZATION BY STAGE ###
+
+# define custom colors
+custom_colors_stage <- c(
+  "A" = "#66CCEE",
+  "B" = "#CCBB44",
+  "C" = "#AA3377"
+)
 
 # set plot order
 randomization_data$Treatment <- factor(
@@ -87,7 +94,7 @@ stage_counts_long <- stage_counts %>%
 stage_plot <- ggplot(stage_counts_long) +
   geom_bar(aes(x = Treatment, y = N, fill = Stage), stat = "identity") +
   theme_pubr() +
-  scale_fill_viridis_d(option = "C") +
+  scale_fill_manual(values = custom_colors_stage) +
   scale_y_continuous(limits = c(0, 24), breaks = seq(0, 24, 1)) +
   scale_x_discrete(labels = treatment_labels) +
   labs(
@@ -97,11 +104,10 @@ stage_plot <- ggplot(stage_counts_long) +
   ) +
   theme(
     legend.position = "right",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic")
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(face = "bold", size = 20),
   )
 
 # show plot
@@ -116,12 +122,11 @@ stem_length_plot <- ggplot(
     mutate(Treatment = factor(Treatment, levels = treatment_order)),
   aes(x = Treatment, y = Length_Init, fill = Treatment, color = Treatment)
 ) +
-  geom_boxplot(outlier.alpha = 0.2, alpha = 0.2) +
+  geom_boxplot(outlier.alpha = 0.5, alpha = 0.5) +
   theme_pubr() +
   scale_fill_manual(values = custom_colors) +
   scale_color_manual(values = custom_colors) +
   scale_x_discrete(labels = treatment_labels) + # Add this line for custom x-axis labels
-  theme(axis.title.x = element_blank()) +
   labs(
     title = "b",
     x = "Treatment",
@@ -129,11 +134,10 @@ stem_length_plot <- ggplot(
   ) +
   theme(
     legend.position = "none",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic")
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(face = "bold", size = 20),
   )
 
 # show plot
@@ -153,12 +157,11 @@ date_plot <- ggplot(
     color = Treatment
   )
 ) +
-  geom_boxplot(outlier.alpha = 0.2, alpha = 0.2) +
+  geom_boxplot(outlier.alpha = 0.5, alpha = 0.5) +
   theme_pubr() +
   scale_fill_manual(values = custom_colors) +
   scale_color_manual(values = custom_colors) +
   scale_x_discrete(labels = treatment_labels) + # Add this line for custom x-axis labels
-  theme(axis.title.x = element_blank()) +
   labs(
     title = "c",
     x = "Treatment",
@@ -166,11 +169,10 @@ date_plot <- ggplot(
   ) +
   theme(
     legend.position = "none",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic")
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    plot.title = element_text(face = "bold", size = 20),
   )
 
 # show plot
@@ -260,6 +262,12 @@ write_csv(p_df, "results/SI/Spearman_p.csv")
 
 ##### RESOURCE ALLOCATION PROPORTIONS #####
 
+# define colors
+custom_colors_allocation <- c(
+  "Roots" = "#BBBBBB",
+  "Shoot" = "#228833"
+)
+
 # calculate proportions
 resource_allocation_data <- resource_allocation_data %>%
   group_by(Treatment) %>%
@@ -296,17 +304,15 @@ resource_proportions_plot <- ggplot(
     limits = c(0, 100),
     breaks = seq(0, 100, by = 25)
   ) +
-  scale_fill_viridis_d(option = "A") +
+  scale_fill_manual(values = custom_colors_allocation) +
   scale_x_discrete(labels = treatment_labels) +
   labs(title = "", x = "Treatment") +
   theme_pubr() +
   theme(
     legend.position = "right",
-    axis.text.x = element_text(size = 10),
-    axis.text.y = element_text(size = 10),
-    axis.title = element_text(size = 12),
-    plot.title = element_text(face = "bold", size = 14),
-    plot.subtitle = element_text(size = 12, face = "italic"),
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
     panel.grid.major.y = element_line(color = "gray90"),
     panel.grid.minor.y = element_line(color = "gray95")
   )
