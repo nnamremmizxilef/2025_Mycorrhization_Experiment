@@ -1,4 +1,12 @@
-########## FIGURE 1 - PHENOTYPIC DATA ##########
+# ------------------------------------------------------------------
+# Script Name: figure1_phenotypicdata.R
+# Purpose: Reproduces Figure 1 from "An Ectomycorrhizal Fungus Alters Development Stages Within Pedunculate Oak’s Endogenous Growth Rhythm"
+# Author: Felix Zimmermann
+# Date: 2025-05-07
+# Contact: felix.zimmermann@wsl.ch
+# License: CC BY
+# ------------------------------------------------------------------
+
 
 ##### BASICS #####
 
@@ -15,8 +23,10 @@ library(emmeans)
 library(ggbeeswarm)
 library(patchwork)
 
-# check and save session info (only run in new R session)
-#sessionInfo() %>% capture.output(file = "results/Figure1/Figure1_session_info.txt")
+# check and save session info
+sessionInfo() %>% 
+  capture.output(file = "results/Figure1/Figure1_session_info.txt")
+
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
@@ -49,7 +59,7 @@ custom_colors <- c(
 )
 
 
-##### PLOT DRY WEIGHT COMPARISONS #####
+##### PLOT DRY WEIGHT COMPARISONS - FIGURE 1B #####
 
 ### do statistical comparison between treatments for durations of each stage ###
 
@@ -132,7 +142,7 @@ dw_plant_plot <- ggplot(
 dw_plant_plot
 
 
-##### PLOT DRY WEIGHT ABOVE AND BELOW GROUND #####
+##### PLOT DRY WEIGHT ABOVE AND BELOW GROUND - FIGURE 1C #####
 
 ### do statistical comparison between treatments for durations of each stage ###
 
@@ -241,7 +251,7 @@ dw_above_below_plot <- ggplot(
 dw_above_below_plot
 
 
-##### BIOMASS ALLOCATION PATTERNS ######
+##### BIOMASS ALLOCATION PATTERNS - FIGURE 1D ######
 
 ### do statistical test ###
 
@@ -298,7 +308,7 @@ AIC(model_DW_Shoot_bc, model_DW_Shoot_log, model_DW_Shoot_no)
 AIC(model_DW_Roots_bc, model_DW_Roots_log, model_DW_Roots_no)
 BIC(model_DW_Shoot_bc, model_DW_Shoot_log, model_DW_Shoot_no)
 BIC(model_DW_Roots_bc, model_DW_Roots_log, model_DW_Roots_no)
-# use no transformation
+# use no transformation (best BIC and AIC)
 
 # check distributions of residuals
 hist(residuals(model_DW_Shoot_no))
@@ -453,7 +463,7 @@ emm_plot <- ggplot() +
 emm_plot
 
 
-##### FINAL VISUALIZATION #####
+##### FINAL VISUALIZATION - FIGURE 1 #####
 
 # create combined plot
 combined_plot_pheno <- dw_plant_plot /

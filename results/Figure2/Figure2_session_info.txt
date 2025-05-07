@@ -23,19 +23,23 @@ other attached packages:
 [21] tibble_3.2.1      ggplot2_3.5.1     tidyverse_2.0.0  
 
 loaded via a namespace (and not attached):
- [1] svUnit_1.0.6         tidyselect_1.2.1     loo_2.8.0            TH.data_1.1-2        tensorA_0.36.2.1    
- [6] timechange_0.3.0     estimability_1.5.1   lifecycle_1.0.4      StanHeaders_2.32.10  survival_3.7-0      
-[11] magrittr_2.0.3       compiler_4.4.1       rlang_1.1.4          tools_4.4.1          utf8_1.2.4          
-[16] bridgesampling_1.1-2 pkgbuild_1.4.4       curl_5.2.2           xml2_1.3.6           multcomp_1.4-26     
-[21] abind_1.4-5          withr_3.0.1          stats4_4.4.1         fansi_1.0.6          xtable_1.8-4        
-[26] colorspace_2.1-1     inline_0.3.21        emmeans_1.10.4       scales_1.3.0         MASS_7.3-61         
-[31] insight_1.0.1        cli_3.6.3            mvtnorm_1.3-1        generics_0.1.3       RcppParallel_5.1.9  
-[36] rstudioapi_0.16.0    tzdb_0.4.0           rstan_2.32.7         splines_4.4.1        operator.tools_1.6.3
-[41] bayesplot_1.11.1     parallel_4.4.1       matrixStats_1.3.0    vctrs_0.6.5          V8_6.0.0            
-[46] Matrix_1.7-0         sandwich_3.1-0       jsonlite_1.8.8       carData_3.0-5        car_3.1-2           
-[51] arrayhelpers_1.1-0   hms_1.1.3            ggdist_3.3.2         glue_1.8.0           chk_0.10.0          
-[56] codetools_0.2-20     distributional_0.5.0 stringi_1.8.4        gtable_0.3.5         QuickJSR_1.6.0      
-[61] munsell_0.5.1        pillar_1.9.0         Brobdingnag_1.2-9    R6_2.5.1             formula.tools_1.7.1 
-[66] evaluate_0.24.0      lattice_0.22-6       backports_1.5.0      gridtext_0.1.5       broom_1.0.6         
-[71] rstantools_2.4.0     coda_0.19-4.1        gridExtra_2.3        nlme_3.1-166         checkmate_2.3.2     
-[76] zoo_1.8-12           pkgconfig_2.0.3     
+ [1] svUnit_1.0.6         tidyselect_1.2.1     loo_2.8.0            TH.data_1.1-2       
+ [5] tensorA_0.36.2.1     estimability_1.5.1   timechange_0.3.0     lifecycle_1.0.4     
+ [9] StanHeaders_2.32.10  survival_3.7-0       magrittr_2.0.3       compiler_4.4.1      
+[13] rlang_1.1.4          tools_4.4.1          utf8_1.2.4           bridgesampling_1.1-2
+[17] pkgbuild_1.4.4       curl_5.2.2           xml2_1.3.6           multcomp_1.4-26     
+[21] abind_1.4-5          withr_3.0.1          stats4_4.4.1         fansi_1.0.6         
+[25] xtable_1.8-4         colorspace_2.1-1     inline_0.3.21        emmeans_1.10.4      
+[29] scales_1.3.0         MASS_7.3-61          insight_1.0.1        cli_3.6.3           
+[33] mvtnorm_1.3-1        generics_0.1.3       RcppParallel_5.1.9   rstudioapi_0.16.0   
+[37] tzdb_0.4.0           rstan_2.32.7         operator.tools_1.6.3 splines_4.4.1       
+[41] bayesplot_1.11.1     parallel_4.4.1       matrixStats_1.3.0    vctrs_0.6.5         
+[45] V8_6.0.0             Matrix_1.7-0         sandwich_3.1-0       jsonlite_1.8.8      
+[49] carData_3.0-5        car_3.1-2            arrayhelpers_1.1-0   hms_1.1.3           
+[53] ggdist_3.3.2         glue_1.8.0           chk_0.10.0           codetools_0.2-20    
+[57] distributional_0.5.0 stringi_1.8.4        gtable_0.3.5         QuickJSR_1.6.0      
+[61] munsell_0.5.1        pillar_1.9.0         Brobdingnag_1.2-9    R6_2.5.1            
+[65] formula.tools_1.7.1  evaluate_0.24.0      lattice_0.22-6       backports_1.5.0     
+[69] gridtext_0.1.5       broom_1.0.6          rstantools_2.4.0     coda_0.19-4.1       
+[73] gridExtra_2.3        nlme_3.1-166         checkmate_2.3.2      zoo_1.8-12          
+[77] pkgconfig_2.0.3     

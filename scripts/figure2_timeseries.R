@@ -1,4 +1,11 @@
-########## FIGURE 2 - TIME SERIES ANALYSIS ##########
+# ------------------------------------------------------------------
+# Script Name: figure2_timeseries.R
+# Purpose: Reproduces Figure 2 from "An Ectomycorrhizal Fungus Alters Development Stages Within Pedunculate Oak’s Endogenous Growth Rhythm"
+# Author: Felix Zimmermann
+# Date: 2025-05-07
+# Contact: felix.zimmermann@wsl.ch
+# License: CC BY
+# ------------------------------------------------------------------
 
 ##### BASICS #####
 
@@ -17,8 +24,10 @@ library(ggsignif)
 library(grid)
 library(patchwork)
 
-# check and save session info (only run in fresh R session)
-#sessionInfo() %>% capture.output(file = "results/Figure2/Figure2_session_info.txt")
+# check and save session info
+sessionInfo() %>%
+  capture.output(file = "results/Figure2/Figure2_session_info.txt")
+
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
@@ -42,13 +51,13 @@ time_data <- time_data %>%
   ) %>%
   dplyr::select(-c(stage_index, initial_index))
 
-# create a column where the total number of stages reached is added for each ID
+# create a column where total number of stages reached is added to each plant ID
 time_data <- time_data %>%
   group_by(ID) %>%
   mutate(Max_Stages_Reached = max(Stages_Reached)) %>%
   ungroup()
 
-# exclude contaminated plants, add +1 to Stages_Reached because plants start with 1 reached stage
+# exclude contaminated plants, add +1 to Stages_Reached (beginning stage = stage 1)
 time_data_final <- subset(time_data, Contaminated == "no")
 time_data_final$Stages_Reached <- time_data_final$Stages_Reached + 1
 
@@ -81,9 +90,9 @@ custom_colors <- c(
 )
 
 
-##### CREATE BASIC GROWTH STAGE DEVELOPMENT PLOT #####
+##### CREATE BASIC GROWTH STAGE DEVELOPMENT PLOT - FIGURE 2B #####
 
-# remove week 10 (only 1 set reached week 10)
+# remove week 9 & 10 (week 8 was last week where both sets were measured twice)
 time_data_basic_plot <- subset(time_data_final, Week < 9)
 
 # create basic plot for growth stage development (mean and standard error)
@@ -143,7 +152,7 @@ basic_growth_plot <- ggplot(
 basic_growth_plot
 
 
-##### GROWTH CURVE ANALYSIS - BRM (Cumulative Distribution Family) #####
+##### GROWTH MODEL - BRM (Cumulative Distribution Family)  - FIGURE 2C #####
 
 ### FIT MODELS WITH DIFFERENT LEVELS OF COMPLEXITY ###
 
@@ -323,7 +332,7 @@ rhat_model_ar_slope <- rhat(bay_model_ar_slope)
 rhat_model_s <- rhat(bay_model_s)
 rhat_model_s_slope <- rhat(bay_model_s_slope)
 
-# calculate maximum deviation from 1 for each model
+# calculate maximum rhat deviation from 1 for each model
 max_dev_base <- max(abs(rhat_model - 1), na.rm = TRUE)
 max_dev_base_slope <- max(abs(rhat_model_slope - 1), na.rm = TRUE)
 max_dev_ar <- max(abs(rhat_model_ar - 1), na.rm = TRUE)
@@ -331,7 +340,7 @@ max_dev_ar_slope <- max(abs(rhat_model_ar_slope - 1), na.rm = TRUE)
 max_dev_s <- max(abs(rhat_model_s - 1), na.rm = TRUE)
 max_dev_s_slope <- max(abs(rhat_model_s_slope - 1), na.rm = TRUE)
 
-# Create summary dataframe
+# create summary dataframe
 rhat_summary <- data.frame(
   Model = c("Base", "Base_Slope", "AR", "AR_Slope", "S", "S_Slope"),
   Max_Deviation = c(
@@ -352,10 +361,10 @@ rhat_summary <- data.frame(
   )
 )
 
-# Sort by maximum deviation
+# sort by maximum deviation
 rhat_summary <- rhat_summary[order(rhat_summary$Max_Deviation), ]
 
-# Print results
+# print results
 print(rhat_summary)
 
 # extract ESS values for each model
@@ -513,7 +522,9 @@ results_day56$SE <- (results_day56$Upper_CI - results_day56$Lower_CI) /
 print(results_day56)
 
 
-### INVESTIGATE SIGNIFICANCE OF TREATMENT EFFECTS ###
+##### OVERALL TREATMENT EFFECTS - FIGURE 2D #####
+
+### GET TREATMENT EFFECTS ###
 
 # extract treatment effects
 treatment_effects <- conditional_effects(
@@ -563,6 +574,9 @@ treatment_effect_data$Treatment <- factor(
 # get significance
 treatment_effect_data$Significant <- (treatment_effect_data$lower__rel > 0 |
   treatment_effect_data$upper__rel < 0)
+
+
+### PLOT TREATMENT EFFECTS AND SAVE RESULTS ###
 
 # create plot for treatment effects on stage development (mean and 95% credible interval)
 overall_treatment_plot <- ggplot(
@@ -626,7 +640,9 @@ write.csv(
 )
 
 
-### IDENTIFY DAYS OF SIGNIFICANT DIFFERENCE ###
+##### IDENTIFY DAYS OF SIGNIFICANT DIFFERENCE - FIGURE 2E #####
+
+### EXTRACT DAYS OF SIGNIFICANT DIFFERENCE ###
 
 # extract unique treatments from original data
 treatments <- unique(bay_model_s_slope$data$Treatment)
@@ -864,6 +880,9 @@ for (pair in treatment_pairs_final) {
   }
 }
 
+
+### PLOT PAIRWISE DIFFERENCES AND SAVE RESULTS ###
+
 # save pairwise timeseries credible intervals
 diff_over_time <- diff_over_time %>%
   dplyr::select(
@@ -969,7 +988,7 @@ write.csv(
 )
 
 
-###### CHECK FOR DIFFERENCES IN STAGE DURATIONS FOR EACH STAGE BETWEEN TREATMENTS #####
+###### CHECK FOR DIFFERENCES IN STAGE DURATIONS FOR EACH STAGE BETWEEN TREATMENTS - FIGURE 2F #####
 
 ### CALCULATE STAGE DURATIONS ###
 
@@ -1095,6 +1114,9 @@ wilcoxon_results_cycle <- pairwise.wilcox.test(
   p.adjust.method = "BH"
 )
 
+
+### PLOT STAGE SPECIFIC DIFFERENCES ###
+
 # create plot
 cycle_plot <- ggplot(
   cycle_durations,
@@ -1186,6 +1208,9 @@ wilcoxon_results_durations <- rbind(
 )
 print(wilcoxon_results_durations)
 
+
+### PLOT STAGE SPECIFIC SIGNIFICANT DIFFERENCES AND SAVE RESULTS ###
+
 # save_results
 stage_duration_results <- subset(wilcoxon_results_durations, select = -c(.y.))
 write.csv(
@@ -1193,9 +1218,6 @@ write.csv(
   "results/Figure2/stage_duration_wilcoxon.csv",
   row.names = FALSE
 )
-
-
-### PLOT RESULTS ###
 
 # set treatment order
 stage_durations$Treatment <- factor(
@@ -1260,7 +1282,7 @@ stage_plot <- ggplot(
 stage_plot
 
 
-##### FINAL VISUALIZATION #####
+##### FINAL VISUALIZATION - FIGURE 2 #####
 
 # create combined plot
 combined_plot <- (plot_spacer() | basic_growth_plot) /

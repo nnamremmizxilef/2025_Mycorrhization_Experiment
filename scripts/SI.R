@@ -1,4 +1,12 @@
-########## SI FIGURES ##########
+# ------------------------------------------------------------------
+# Script Name: SI.R
+# Purpose: Reproduces SI figures from "An Ectomycorrhizal Fungus Alters Development Stages Within Pedunculate Oak’s Endogenous Growth Rhythm"
+# Author: Felix Zimmermann
+# Date: 2025-05-07
+# Contact: felix.zimmermann@wsl.ch
+# License: CC BY
+# ------------------------------------------------------------------
+
 
 ##### BASICS #####
 
@@ -11,8 +19,10 @@ library(ggpubr)
 library(patchwork)
 library(forcats)
 
-# check and save session info (only run in new R session)
-#sessionInfo() %>% capture.output(file = "results/SI/SI_session_info.txt")
+# check and save session info
+sessionInfo() %>% 
+  capture.output(file = "results/SI/SI_session_info.txt")
+
 
 ##### DATA LOADING, CLEANING & SCALING #####
 
@@ -56,7 +66,7 @@ custom_colors <- c(
 )
 
 
-##### PLANT RANDOMIZATION PLOT #####
+##### PLANT RANDOMIZATION PLOT - FIGURE S1A #####
 
 ### RANDOMIZATION BY STAGE ###
 
@@ -114,7 +124,7 @@ stage_plot <- ggplot(stage_counts_long) +
 stage_plot
 
 
-### RANDOMIZATION BY SIZE ###
+### RANDOMIZATION BY SIZE - FIGURE 21B ###
 
 # plot initial stem length
 stem_length_plot <- ggplot(
@@ -144,7 +154,7 @@ stem_length_plot <- ggplot(
 stem_length_plot
 
 
-### RANDOMIZATION BY ROOTING DATE ###
+### RANDOMIZATION BY ROOTING DATE - FIGURE S1C ###
 
 # plot initial stem length
 date_plot <- ggplot(
@@ -179,7 +189,7 @@ date_plot <- ggplot(
 date_plot
 
 
-#### FINAL VISUALIZATION ####
+#### FINAL VISUALIZATION - FIGURE S1 ####
 
 # create combined plot
 combined_plot_randomization <- stage_plot /
@@ -206,7 +216,7 @@ ggsave(
 dev.off()
 
 
-##### CORRELATION MATRIX HEATMAP #####
+##### CORRELATION MATRIX HEATMAP - FIGURE S2 #####
 
 # calculate correlation matrix and p-values
 corr_results <- corr.test(na.omit(pheno_data_num), method = "spearman")
@@ -260,7 +270,7 @@ write_csv(corr_df, "results/SI/Spearman_R.csv")
 write_csv(p_df, "results/SI/Spearman_p.csv")
 
 
-##### RESOURCE ALLOCATION PROPORTIONS #####
+##### RESOURCE ALLOCATION PROPORTIONS - FIGURE S3 #####
 
 # define colors
 custom_colors_allocation <- c(
@@ -322,7 +332,6 @@ resource_proportions_plot <- ggplot(
 resource_proportions_plot
 
 # save plot
-
 ggsave(
   "results/SI/Resource_Allocation_Proportions.pdf",
   plot = resource_proportions_plot,
