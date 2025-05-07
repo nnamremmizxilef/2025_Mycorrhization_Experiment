@@ -57,15 +57,6 @@
 2. Open the "2025_Myco_Experiment.Rproj" file with RStudio.
 
 3. Run scripts (you can find "Scripts" under "Files" in the "Files/Plots/Packages etc." window).
-
-
-## To use our code:
-
-1. Download/clone repository.
-
-2. Open the "2025_Myco_Experiment.Rproj" file with RStudio.
-
-3. Run scripts (you can find "Scripts" under "Files" in the "Files/Plots/Packages etc." window).
    
 
 ## Citation:
