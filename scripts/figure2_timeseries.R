@@ -1032,6 +1032,115 @@ stage_durations <- stage_durations %>%
   mutate(StageLetter = substr(Stage, nchar(Stage), nchar(Stage)))
 
 
+### COMPARISONS OF CYCLE DURATIONS BETWEEN TREATMENTS ###
+
+# create and run a function calculating growth cycle durations of different plants
+calculate_cycle_durations <- function(data) {
+  # Extract cycle number and stage letter
+  data <- data %>%
+    mutate(
+      CycleNum = as.integer(sub("(\\d+)([A-D])", "\\1", Stage)),
+      StageLetter = sub("(\\d+)([A-D])", "\\2", Stage)
+    )
+  # group by ID
+  result_data <- data %>%
+    group_by(ID) %>%
+    arrange(Date) %>%
+    mutate(
+      NextStage = lead(StageLetter),
+      NextCycleNum = lead(CycleNum),
+      NextDays = lead(Days)
+    ) %>%
+    # find D→A transitions
+    filter(StageLetter == "D" & NextStage == "A") %>%
+    select(
+      ID,
+      Treatment,
+      CurrentCycle = CycleNum,
+      NextCycle = NextCycleNum,
+      CurrentDays = Days,
+      NextDays
+    ) %>%
+    # prepare for calculating cycle durations
+    ungroup()
+  # skip plants that start with stage A
+  start_stages <- data %>%
+    group_by(ID) %>%
+    slice(1) %>%
+    select(ID, FirstStage = StageLetter)
+  result_data <- result_data %>%
+    left_join(start_stages, by = "ID") %>%
+    filter(FirstStage != "A")
+  # calculate cycle durations
+  cycle_durations <- result_data %>%
+    group_by(ID) %>%
+    mutate(
+      NextTransitionDays = lead(NextDays)
+    ) %>%
+    filter(!is.na(NextTransitionDays)) %>%
+    transmute(
+      ID,
+      Treatment,
+      Cycle_ID = NextCycle, # cycle that starts at this transition
+      Days = NextTransitionDays - NextDays # days between this A and next A
+    )
+  return(cycle_durations)
+}
+cycle_durations <- calculate_cycle_durations(time_data_final)
+
+# do wilcoxon test with Benjamini-Hochberg p adjustment for cycle durations
+wilcoxon_results_cycle <- pairwise.wilcox.test(
+  cycle_durations$Days,
+  cycle_durations$Treatment,
+  p.adjust.method = "BH"
+)
+
+# create plot
+cycle_plot <- ggplot(
+  cycle_durations,
+  aes(x = Treatment, y = Days, fill = Treatment)
+) +
+  geom_boxplot(
+    outlier.shape = 16,
+    outlier.size = 2,
+    alpha = 0.5,
+    lwd = 0.5,
+    aes(color = Treatment)
+  ) +
+  scale_fill_manual(
+    values = custom_colors,
+    labels = treatment_labels,
+    breaks = treatment_order
+  ) +
+  scale_color_manual(
+    values = custom_colors,
+    labels = treatment_labels,
+    breaks = treatment_order
+  ) +
+  labs(y = "Cycle Duration (Days)", x = "Treatment") +
+  theme_classic() +
+  theme_pubr() +
+  theme(
+    legend.position = "right",
+    axis.text.x = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 12),
+    plot.title = element_text(
+      face = "bold",
+      size = 20,
+      hjust = -0.075,
+      vjust = 2
+    ),
+    panel.grid.major.y = element_line(color = "gray90"),
+    panel.grid.minor.y = element_line(color = "gray95")
+  )
+
+# show plot
+cycle_plot
+
+
 ### COMPARISONS BETWEEN TREATMENTS FOR EACH STAGE ###
 
 # subset stage durations for specific stages
@@ -1116,7 +1225,6 @@ stage_plot <- ggplot(
     labels = treatment_labels,
     breaks = treatment_order
   ) +
-  labs(y = "Days in Stage", x = "Stage") +
   theme_classic() +
   geom_signif(
     y_position = c(59, 64, 69, 24, 30),
