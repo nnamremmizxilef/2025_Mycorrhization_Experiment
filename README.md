@@ -16,7 +16,7 @@
 
 **Marco Göttig** (Institute of Biology, Philipps University Marburg, Marburg, Germany; goettig@biologie.uni-marburg.de; ORCID: NA)
 
-**René Graf** (Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; rene.graf@wsl.ch; [ORCID: NA](https://orcid.org/0009-0002-9567-9089))
+**René Graf** (Research Unit Biodiversity and Conservation Biology, Swiss Federal Research Institute WSL, Birmensdorf, Switzerland; rene.graf@wsl.ch; [ORCID: 0009-0002-9567-9089](https://orcid.org/0009-0002-9567-9089))
 
 **Mika Tarkka** (Department of Soil Ecology, Helmholtz Centre for Environmental Research - UFZ, Halle/Saale, Germany; mika.tarkka@ufz.de; [ORCID: 0000-0003-4630-351X](https://orcid.org/0000-0003-4630-351X))
 
