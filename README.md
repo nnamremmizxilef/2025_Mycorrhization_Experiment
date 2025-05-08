@@ -61,9 +61,8 @@
 
 ## Citation:
 
-XXXX [https://doi.org/xxx](xxx)
+
 
 
 ## Link to publication:
 
-[https://doi.org/xxx](xxx)
